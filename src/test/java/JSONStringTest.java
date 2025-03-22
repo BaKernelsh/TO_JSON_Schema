@@ -1,3 +1,4 @@
+import org.example.Exception.JSONSchemaGeneratorException;
 import org.example.JSONString;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +43,31 @@ public class JSONStringTest {
        Assertions.assertArrayEquals(okArray, arr);
    }
 
+
+   @Test
+   public void getPropertyNameTest(){
+       testJsonString.getNextCharAndRemoveOmitWhitespaces(); //usuwa {
+       testJsonString.getNextCharAndRemoveOmitWhitespaces(); //usuwa "
+
+       Assertions.assertDoesNotThrow(() -> {
+           String propertyName = testJsonString.getPropertyName('"');
+           Assertions.assertEquals("key1", propertyName);
+       });
+   }
+
+
+   @Test
+   public void getPropertyNameShouldThrowUnterminatedString(){
+
+       JSONString testString = new JSONString("\n         {\"key1: string, key2:{sk:23}}");
+       testString.getNextCharAndRemoveOmitWhitespaces(); //usuwa {
+       testString.getNextCharAndRemoveOmitWhitespaces(); //usuwa "
+
+       Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
+           testString.getPropertyName('"');
+       });
+
+   }
 
 
 }

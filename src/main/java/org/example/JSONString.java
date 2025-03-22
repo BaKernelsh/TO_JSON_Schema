@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.Exception.JSONSchemaGeneratorException;
+
 public class JSONString {
 
     private String json;
@@ -37,6 +39,16 @@ public class JSONString {
         return null;
     }
 
+    //zwraca nazwe property, i usuwa ja ze stringa razem z konczacym " albo '   wczesniej poczatkowy " (albo ') powinien byc usuniety
+    public String getPropertyName(char endsWith) throws JSONSchemaGeneratorException {
+        int indexOfEnd = json.indexOf(endsWith);
+        if(indexOfEnd == -1)
+            throw new JSONSchemaGeneratorException("Unterminated string");
+
+        String propertyName = json.substring(0,indexOfEnd);
+        json = json.substring(indexOfEnd+1);
+        return propertyName;
+    }
 
 
     public JSONString(String json) {
