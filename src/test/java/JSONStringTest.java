@@ -69,5 +69,35 @@ public class JSONStringTest {
 
    }
 
+   @Test
+   public void getNull(){
+        JSONString testString = new JSONString("null");
+
+        Assertions.assertDoesNotThrow(() -> {
+            String str = testString.getNull();
+            Assertions.assertTrue(str.equals("null"));
+        });
+
+       JSONString testString2 = new JSONString("null, cosdalej");
+
+       Assertions.assertDoesNotThrow(() -> {
+           
+       });
+   }
+
+
+    @Test
+    public void getNullShouldThrowUnexpectedCharacter(){
+
+
+        Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
+            JSONString testString = new JSONString("nulg");
+            testString.getNull();
+
+        });
+
+        //testString = new JSONString("null");
+    }
+
 
 }

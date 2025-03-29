@@ -50,6 +50,32 @@ public class JSONString {
         return propertyName;
     }
 
+    public String getNull() throws JSONSchemaGeneratorException {
+        json = json.trim();
+        if(getNextChar() == 'n') {
+            String nullString;
+            if(json.length() >= 5) {
+                nullString = json.substring(0, 5);
+                json = json.substring(5);
+            }
+            else{
+                nullString = json;
+                json = "";
+            }
+
+            if(!nullString.equals("null")){
+                throw new JSONSchemaGeneratorException("UnexpectedCharacter");
+            }
+
+            return nullString;
+        }
+        else{
+            return null;
+        }
+    }
+
+    //public boolean getBoolean()
+
 
     public JSONString(String json) {
         this.json = json.trim();
