@@ -9,7 +9,7 @@ public class JSONStringTN extends JSONTreeNode{
 
     }
 
-    public JSONStringTN(String type){
+    public JSONStringTN(JSONTreeNodeType type){
         super(type);
     }
 

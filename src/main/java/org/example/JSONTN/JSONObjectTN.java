@@ -11,7 +11,7 @@ public class JSONObjectTN extends JSONTreeNode{
 
     }
 
-    public JSONObjectTN(String type){
+    public JSONObjectTN(JSONTreeNodeType type){
         super(type);
     }
 

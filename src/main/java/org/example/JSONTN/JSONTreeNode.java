@@ -2,22 +2,22 @@ package org.example.JSONTN;
 
 public abstract class JSONTreeNode {
 
-    private String type;
+    private JSONTreeNodeType type;
     private String name;
 
 
     public JSONTreeNode() {
     }
 
-    public JSONTreeNode(String type) {
+    public JSONTreeNode(JSONTreeNodeType type) {
         this.type = type;
     }
 
-    public String getType() {
+    public JSONTreeNodeType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(JSONTreeNodeType type) {
         this.type = type;
     }
 

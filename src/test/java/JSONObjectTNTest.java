@@ -1,5 +1,6 @@
 import org.example.JSONTN.JSONObjectTN;
 import org.example.JSONTN.JSONTreeNode;
+import org.example.JSONTN.JSONTreeNodeType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,13 +12,13 @@ public class JSONObjectTNTest {
     public void addPropertyWithExistingNameTest(){
         JSONObjectTN parentObject = new JSONObjectTN();
 
-        JSONObjectTN property = new JSONObjectTN("object");
+        JSONObjectTN property = new JSONObjectTN(JSONTreeNodeType.OBJECT);
         property.setName("prop");
 
-        JSONObjectTN propertyWithSameName = new JSONObjectTN("object");
+        JSONObjectTN propertyWithSameName = new JSONObjectTN(JSONTreeNodeType.OBJECT);
         propertyWithSameName.setName("prop");
 
-        JSONObjectTN propertyWithOtherName = new JSONObjectTN("object");
+        JSONObjectTN propertyWithOtherName = new JSONObjectTN(JSONTreeNodeType.OBJECT);
         propertyWithOtherName.setName("prop2");
 
         parentObject.addProperty(property);
