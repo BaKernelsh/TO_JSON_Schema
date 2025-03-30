@@ -1,10 +1,9 @@
 import org.example.JSONTN.JSONObjectTN;
-import org.example.JSONTN.JSONTreeNode;
 import org.example.JSONTN.JSONTreeNodeType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+
 
 public class JSONObjectTNTest {
 

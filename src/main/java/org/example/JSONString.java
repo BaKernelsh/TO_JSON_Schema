@@ -7,7 +7,7 @@ public class JSONString {
 
     private String json;
 
-    //pobiera nastepny character ignorujac whitespace
+    //pobiera nastepny character ignorujac whitespace (nie usuwa go)
     public Character getNextCharOmitWhitespaces(){
         json = json.trim();
         if(json.length() > 0)
@@ -40,9 +40,10 @@ public class JSONString {
         return null;
     }
 
-    //zwraca nazwe property, i usuwa ja ze stringa razem z konczacym " albo '   wczesniej poczatkowy " (albo ') powinien byc usuniety
-    public String getPropertyName(char endsWith) throws JSONSchemaGeneratorException {
-        int indexOfEnd = json.indexOf(endsWith);
+    //zwraca nazwe property, i usuwa ja ze stringa razem z konczacym ", wczesniej poczatkowy " powinien byc usuniety
+    //mozna tez uzywac do pobierania wartosci stringa
+    public String getPropertyName() throws JSONSchemaGeneratorException {
+        int indexOfEnd = json.indexOf('"');
         if(indexOfEnd == -1)
             throw new JSONSchemaGeneratorException("Unterminated string");
 
@@ -56,13 +57,13 @@ public class JSONString {
         json = json.trim();
         if(getNextChar() == 'n') {
             String nullString;
-            if(json.length() >= 5) {
-                nullString = json.substring(0, 5);
-                json = json.substring(5);
+            if(json.length() >= 4) {
+                nullString = json.substring(0, 4);
+                json = json.substring(4);
             }
             else{
                 nullString = json;
-                json = "";
+                throw new JSONSchemaGeneratorException("Unknown value: " + nullString);
             }
 
             if(!nullString.equals("null")){
@@ -86,7 +87,8 @@ public class JSONString {
             }
             else{
                 trueString = json;
-                json = "";
+                throw new JSONSchemaGeneratorException("Unknown value: " + trueString);
+                //json = "";
             }
 
             if(!trueString.equals("true"))
@@ -102,10 +104,11 @@ public class JSONString {
             }
             else{
                 falseString = json;
-                json = "";
+                throw new JSONSchemaGeneratorException("Unknown value: " + falseString);
+                //json = "";
             }
 
-            if(!falseString.equals("true"))
+            if(!falseString.equals("false"))
                 throw new JSONSchemaGeneratorException("Unexpected character");
 
             return falseString;
@@ -115,23 +118,27 @@ public class JSONString {
         }
     }
 
-    public String getNumber(){
+    public String getNumber() throws JSONSchemaGeneratorException {
         json = json.trim();
         if(json.charAt(0) != '-' && !Character.isDigit(json.charAt(0)))
             return null;
 
-        int indexAfterLastNumberCharacter = 0;
-
-        for(int i=0; i< json.length(); i++){
+        //int indexAfterLastNumberCharacter = 0;
+        int i = 0; //index po ostatnim znaku liczby
+        for(; i< json.length(); i++){
             char currentChar = json.charAt(i);
             if(!(Character.isDigit(currentChar) || currentChar == '.' || currentChar == 'e' || currentChar == 'E' || currentChar == '-' || currentChar == '+')){
-                indexAfterLastNumberCharacter = i;
+                //indexAfterLastNumberCharacter = i;
                 break;
             }
         }
 
-        String numberString = json.substring(0, indexAfterLastNumberCharacter);
-        json = json.substring(indexAfterLastNumberCharacter);
+
+        String numberString = json.substring(0, i);
+        if(numberString.endsWith(".") || numberString.endsWith("e") || numberString.endsWith("E") || numberString.endsWith("-") || numberString.endsWith("+"))
+            throw new JSONSchemaGeneratorException("Invalid number: Number cannot end with '" + numberString.charAt(numberString.length()-1) + "'");
+
+        json = json.substring(i);
         return numberString;
     }
 

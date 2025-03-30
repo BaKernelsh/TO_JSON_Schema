@@ -50,7 +50,7 @@ public class JSONStringTest {
        testJsonString.getNextCharAndRemoveOmitWhitespaces(); //usuwa "
 
        Assertions.assertDoesNotThrow(() -> {
-           String propertyName = testJsonString.getPropertyName('"');
+           String propertyName = testJsonString.getPropertyName();
            Assertions.assertEquals("key1", propertyName);
        });
    }
@@ -64,24 +64,29 @@ public class JSONStringTest {
        testString.getNextCharAndRemoveOmitWhitespaces(); //usuwa "
 
        Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
-           testString.getPropertyName('"');
+           testString.getPropertyName();
        });
 
    }
 
    @Test
    public void getNull(){
+        //jest sam null
         JSONString testString = new JSONString("null");
 
         Assertions.assertDoesNotThrow(() -> {
             String str = testString.getNull();
             Assertions.assertTrue(str.equals("null"));
+            Assertions.assertEquals("", testString.getJson());
         });
 
-       JSONString testString2 = new JSONString("null, cosdalej");
+       //jest cos po nullu
+       JSONString testString2 = new JSONString("null, \"");
 
        Assertions.assertDoesNotThrow(() -> {
-           
+           String str = testString2.getNull();
+           Assertions.assertTrue(str.equals("null"));
+           Assertions.assertEquals(", \"", testString2.getJson());
        });
    }
 
@@ -89,23 +94,40 @@ public class JSONStringTest {
     @Test
     public void getNullShouldThrowUnexpectedCharacter(){
 
-
         Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
-            JSONString testString = new JSONString("nulg");
+            JSONString testString = new JSONString("nulq");
             testString.getNull();
 
         });
-
-        //testString = new JSONString("null");
     }
 
 
+    @Test
+    public void getNullShouldThrowUnknownValue(){
+
+        var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
+            JSONString testString = new JSONString("nul");
+            testString.getNull();
+        });
+        Assertions.assertEquals("Unknown value: nul", e.getMessage());
+    }
+
+    @Test
     public void getBooleanTest(){
+        //true
+        Assertions.assertDoesNotThrow(() -> {
+            JSONString testString = new JSONString("true");
+            String resultString = testString.getBoolean();
+            Assertions.assertEquals("true", resultString);
+            Assertions.assertEquals("", testString.getJson());
+        });
+
         //true
         Assertions.assertDoesNotThrow(() -> {
             JSONString testString = new JSONString("  \n  true, \"cos\": true");
             String resultString = testString.getBoolean();
             Assertions.assertEquals("true", resultString);
+            Assertions.assertEquals(", \"cos\": true", testString.getJson());
         });
 
         //false
@@ -113,7 +135,20 @@ public class JSONStringTest {
             JSONString testString = new JSONString("  \n  false, \"cos\": true");
             String resultString = testString.getBoolean();
             Assertions.assertEquals("false", resultString);
+            Assertions.assertEquals(", \"cos\": true", testString.getJson());
         });
+
+        var e1 = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
+            JSONString testString = new JSONString("tru");
+            testString.getBoolean();
+        });
+        Assertions.assertEquals("Unknown value: tru", e1.getMessage());
+
+        var e2 = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
+            JSONString testString = new JSONString("fals");
+            testString.getBoolean();
+        });
+        Assertions.assertEquals("Unknown value: fals", e2.getMessage());
 
         //pierwsza litera to nie 't' ani 'f'
         Assertions.assertDoesNotThrow(() -> {
@@ -136,91 +171,104 @@ public class JSONStringTest {
 
     @Test
     public void getNumberTest(){
-
-        //nie minus lub cyfra na poczatku
-        JSONString testString = new JSONString("\n         E, key2:{sk:23}}");
-        String numberString = testString.getNumber();
-        Assertions.assertNull(numberString);
-
-
-        //liczba dodatnia
-        testString = new JSONString("\n         456, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("456", numberString);
-
-        //ujemna liczba
-        testString = new JSONString("\n         -456, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("-456", numberString);
-
-        //liczba z częścią dziesiętną
-        testString = new JSONString("\n         -456.1234, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("-456.1234", numberString);
+        try {
+            //nie minus lub cyfra na poczatku
+            JSONString testString = new JSONString("\n         E, key2:{sk:23}}");
+            String numberString = testString.getNumber();
+            Assertions.assertNull(numberString);
 
 
-        //liczba z e-
-        testString = new JSONString("\n         456e-5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("456e-5", numberString);
+            //liczba dodatnia
+            testString = new JSONString("\n         456");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456", numberString);
 
-        //liczba z E-
-        testString = new JSONString("\n         456E-5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("456E-5", numberString);
+            //ujemna liczba
+            testString = new JSONString("\n         -456");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("-456", numberString);
 
-        //liczba z e+
-        testString = new JSONString("\n         456e+5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("456e+5", numberString);
+            //liczba dodatnia i cos dalej
+            testString = new JSONString("\n         456, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456", numberString);
 
-        //liczba z E+
-        testString = new JSONString("\n         456E+5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("456E+5", numberString);
+            //ujemna liczba i cos dalej
+            testString = new JSONString("\n         -456, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("-456", numberString);
 
-
-        //ujemna liczba z e-
-        testString = new JSONString("\n         -456e-5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("-456e-5", numberString);
-
-        //ujemna liczba z E-
-        testString = new JSONString("\n         -456E-5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("-456E-5", numberString);
-
-        //ujemna liczba z e+
-        testString = new JSONString("\n        -456e+5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("-456e+5", numberString);
-
-        //ujemna liczba z E+
-        testString = new JSONString("\n         -456E+5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("-456E+5", numberString);
+            //liczba z częścią dziesiętną
+            testString = new JSONString("\n         -456.1234, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("-456.1234", numberString);
 
 
-        //liczba z częścią dziesiętną z e-
-        testString = new JSONString("\n         456.456e-5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("456.456e-5", numberString);
+            //liczba z e-
+            testString = new JSONString("\n         456e-5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456e-5", numberString);
 
-        //liczba z częścią dziesiętną z E-
-        testString = new JSONString("\n         456.456E-5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("456.456E-5", numberString);
+            //liczba z E-
+            testString = new JSONString("\n         456E-5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456E-5", numberString);
 
-        //liczba z częścią dziesiętną z e+
-        testString = new JSONString("\n         456.456e+5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("456.456e+5", numberString);
+            //liczba z e+
+            testString = new JSONString("\n         456e+5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456e+5", numberString);
 
-        //liczba z częścią dziesiętną z E+
-        testString = new JSONString("\n         456.456E+5, key2:{sk:23}}");
-        numberString = testString.getNumber();
-        Assertions.assertEquals("456.456E+5", numberString);
+            //liczba z E+
+            testString = new JSONString("\n         456E+5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456E+5", numberString);
 
+
+            //ujemna liczba z e-
+            testString = new JSONString("\n         -456e-5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("-456e-5", numberString);
+
+            //ujemna liczba z E-
+            testString = new JSONString("\n         -456E-5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("-456E-5", numberString);
+
+            //ujemna liczba z e+
+            testString = new JSONString("\n        -456e+5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("-456e+5", numberString);
+
+            //ujemna liczba z E+
+            testString = new JSONString("\n         -456E+5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("-456E+5", numberString);
+
+
+            //liczba z częścią dziesiętną z e-
+            testString = new JSONString("\n         456.456e-5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456.456e-5", numberString);
+
+            //liczba z częścią dziesiętną z E-
+            testString = new JSONString("\n         456.456E-5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456.456E-5", numberString);
+
+            //liczba z częścią dziesiętną z e+
+            testString = new JSONString("\n         456.456e+5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456.456e+5", numberString);
+
+            //liczba z częścią dziesiętną z E+
+            testString = new JSONString("\n         456.456E+5, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("456.456E+5", numberString);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

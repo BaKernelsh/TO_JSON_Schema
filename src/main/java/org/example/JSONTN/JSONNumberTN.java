@@ -1,8 +1,8 @@
 package org.example.JSONTN;
 
-public class JSONNumberTN<T> extends JSONTreeNode{
+public class JSONNumberTN extends JSONTreeNode{
 
-    private T value;
+    private Double value;
 
 
     public JSONNumberTN() {
@@ -14,11 +14,11 @@ public class JSONNumberTN<T> extends JSONTreeNode{
     }
 
 
-    public T getValue() {
+    public Double getValue() {
         return value;
     }
 
-    public void setValue(T value) {
-        this.value = value;
+    public void setValue(String value) {
+        this.value = Double.valueOf(value);
     }
 }
