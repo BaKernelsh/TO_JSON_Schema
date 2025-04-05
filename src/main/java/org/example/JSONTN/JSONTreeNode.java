@@ -3,7 +3,7 @@ package org.example.JSONTN;
 public abstract class JSONTreeNode {
 
     private JSONTreeNodeType type;
-    private String name;
+    private String name = null;
 
 
     public JSONTreeNode() {
