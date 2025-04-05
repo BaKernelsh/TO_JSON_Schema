@@ -135,7 +135,7 @@ public class JSONString {
 
 
         String numberString = json.substring(0, i);
-        if(numberString.charAt(0) == '0' && numberString.charAt(1) == '0')
+        if(numberString.charAt(0) == '0' && (numberString.charAt(1) == '0' || numberString.charAt(1) != '.'))
             throw new JSONSchemaGeneratorException("Leading zeros are not allowed");
         if(numberString.endsWith(".") || numberString.endsWith("e") || numberString.endsWith("E") || numberString.endsWith("-") || numberString.endsWith("+"))
             throw new JSONSchemaGeneratorException("Invalid number: Number cannot end with '" + numberString.charAt(numberString.length()-1) + "'");

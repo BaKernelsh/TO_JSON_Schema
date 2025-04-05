@@ -364,4 +364,56 @@ public class GeneratorForObjectsTest {
         });
     }
 
+    @Test
+    public void generateTreeFromObjectWithArray(){
+        Assertions.assertDoesNotThrow(() -> {
+            JSONString json = new JSONString("{\"prop1\": [\"string\"]}");
+            JSONTreeNode result = Generator.generateSchemaTree(json);
+            //sprawdzenie roota
+            Assertions.assertInstanceOf(JSONObjectTN.class, result);
+            Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
+            Assertions.assertNull(result.getName());
+            Assertions.assertEquals(1, ((JSONObjectTN) result).getProperties().size());
+
+            JSONTreeNode arrayProperty = ((JSONObjectTN) result).getProperties().getFirst();
+            Assertions.assertInstanceOf(JSONArrayTN.class, arrayProperty);
+            Assertions.assertEquals(JSONTreeNodeType.ARRAY, arrayProperty.getType());
+            Assertions.assertEquals("prop1", arrayProperty.getName());
+            Assertions.assertEquals(1, ((JSONArrayTN) arrayProperty).getItems().size());
+        });
+    }
+
+    @Test
+    public void generateTreeFromObjectWithNestedArrays(){
+        Assertions.assertDoesNotThrow(() -> {
+            JSONString json = new JSONString("{\"prop1\": [[\"string\"], null]}");
+            JSONTreeNode result = Generator.generateSchemaTree(json);
+            //sprawdzenie roota
+            Assertions.assertInstanceOf(JSONObjectTN.class, result);
+            Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
+            Assertions.assertNull(result.getName());
+            Assertions.assertEquals(1, ((JSONObjectTN) result).getProperties().size());
+            //sprawdzenie zewnetrznej tablicy
+            JSONTreeNode arrayProperty = ((JSONObjectTN) result).getProperties().getFirst();
+            Assertions.assertInstanceOf(JSONArrayTN.class, arrayProperty);
+            Assertions.assertEquals(JSONTreeNodeType.ARRAY, arrayProperty.getType());
+            Assertions.assertEquals("prop1", arrayProperty.getName());
+            Assertions.assertEquals(2, ((JSONArrayTN) arrayProperty).getItems().size());
+
+                JSONTreeNode nullProperty = ((JSONArrayTN) arrayProperty).getItems().getLast();
+                Assertions.assertInstanceOf(JSONNullTN.class, nullProperty);
+                Assertions.assertEquals(JSONTreeNodeType.NULL, nullProperty.getType());
+
+            //sprawdzenie wewnetrznej tablicy
+            JSONTreeNode innerArray = ((JSONArrayTN) arrayProperty).getItems().getFirst();
+            Assertions.assertInstanceOf(JSONArrayTN.class, innerArray);
+            Assertions.assertEquals(JSONTreeNodeType.ARRAY, innerArray.getType());
+            Assertions.assertEquals(1, ((JSONArrayTN) innerArray).getItems().size());
+
+                JSONTreeNode stringProperty = ((JSONArrayTN) innerArray).getItems().getFirst();
+                Assertions.assertInstanceOf(JSONStringTN.class, stringProperty);
+                Assertions.assertEquals(JSONTreeNodeType.STRING, stringProperty.getType());
+                Assertions.assertEquals("string", ((JSONStringTN) stringProperty).getValue());
+        });
+    }
 }

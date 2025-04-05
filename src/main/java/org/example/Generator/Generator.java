@@ -11,7 +11,7 @@ public class Generator {
 
         if(nextChar == null)// throw end of json ?
             return null;
-
+        //TODO zlikwidowac to
         switch(nextChar){
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
@@ -111,6 +111,7 @@ public class Generator {
 
             switch(nextChar){
                 case ']':
+                    json.getNextCharAndRemoveOmitWhitespaces();
                     return newArrayNode;
 
                 case '0': case '1': case '2': case '3': case '4':
@@ -171,7 +172,7 @@ public class Generator {
                 json.getNextCharAndRemoveOmitWhitespaces();
             }
             else if(json.getNextCharOmitWhitespaces() == ']'){
-                //json.getNextCharAndRemoveOmitWhitespaces();
+                json.getNextCharAndRemoveOmitWhitespaces();
                 return newArrayNode;
             }
             else{

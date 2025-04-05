@@ -280,6 +280,13 @@ public class JSONStringTest {
             testString.getNumber();
         });
         Assertions.assertEquals("Leading zeros are not allowed", e.getMessage());
+
+
+        var e2 = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
+            JSONString testString = new JSONString("0123");
+            testString.getNumber();
+        });
+        Assertions.assertEquals("Leading zeros are not allowed", e2.getMessage());
     }
 
 }
