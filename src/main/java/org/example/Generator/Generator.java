@@ -44,6 +44,9 @@ public class Generator {
                 newStringNode.setValue(string);
                 return newStringNode;
 
+            //case '{':
+
+
 
             default:
                 throw new JSONSchemaGeneratorException("Unexpected character: " + nextChar);
@@ -51,6 +54,41 @@ public class Generator {
 
 
     }
+
+    public static JSONTreeNode processObject(JSONString json) throws JSONSchemaGeneratorException {
+        JSONObjectTN newObjectNode = new JSONObjectTN(JSONTreeNodeType.OBJECT);
+
+        while(true) {
+            Character nextChar = json.getNextCharAndRemoveOmitWhitespaces();
+            JSONTreeNode newProperty;
+
+            switch (nextChar) {
+                case '}':
+                    return newObjectNode;
+
+                case '"':
+                    String propertyName = json.getPropertyName();
+                    if(json.getNextCharAndRemoveOmitWhitespaces() != ':')
+                        throw new JSONSchemaGeneratorException("Unexpected character");
+
+                    newProperty = generateSchemaTree(json);
+                    if(newProperty == null)
+                        throw new JSONSchemaGeneratorException("Unexpected end of JSON");
+                    newProperty.setName(propertyName);
+                    newObjectNode.addProperty(newProperty);
+                    continue;
+
+                case ',':
+                    continue;
+
+                default :
+                    throw new JSONSchemaGeneratorException("Unexpected character");
+
+            }
+        }
+    }
+
+
 
 /*    public static boolean isInteger(String number){
         try{

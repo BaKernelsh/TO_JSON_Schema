@@ -266,9 +266,20 @@ public class JSONStringTest {
             numberString = testString.getNumber();
             Assertions.assertEquals("456.456E+5", numberString);
 
+
+
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void getNumberShouldThrowLeadingZeros(){
+        var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
+            JSONString testString = new JSONString("00123");
+            testString.getNumber();
+        });
+        Assertions.assertEquals("Leading zeros are not allowed", e.getMessage());
     }
 
 }
