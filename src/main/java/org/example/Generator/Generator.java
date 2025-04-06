@@ -214,11 +214,20 @@ public class Generator {
                 JSONTreeNode current = properties.get(i);
                 if(current.getType() != JSONTreeNodeType.OBJECT
                    && current.getType() != JSONTreeNodeType.ARRAY){
-                    schemaString = schemaString.concat("\"" + current.getName() + "\": {\n\"type\":\"" +
-                                                        current.getType() + "\"\n}");
+                    schemaString = schemaString.concat("\"" + current.getName() + "\": {\n\"type\": \"" +
+                                                        current.getType().toString().toLowerCase() + "\"\n}");
+                }
+                if(current.getType() == JSONTreeNodeType.OBJECT){
+                    schemaString = schemaString.concat("\"" + current.getName() + "\": ");
+                    schemaString = generateSchemaString(current, schemaString);
                 }
 
-                //wpisanie required podobiektu bedzie tutaj
+
+
+
+                if(i != properties.size() - 1)
+                    schemaString = schemaString.concat(",");
+                schemaString = schemaString.concat("\n");
                 i++;
             }
 
@@ -233,13 +242,6 @@ public class Generator {
         //}
     }
 
-/*    public static boolean isInteger(String number){
-        try{
-            Integer.parseInt(number);
-            return true;
-        }catch(NumberFormatException e){
-            return false;
-        }
-    }*/
+
 
 }

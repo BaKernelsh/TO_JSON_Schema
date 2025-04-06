@@ -71,4 +71,60 @@ public class SchemaStringGenerationTest {
         System.out.println(schemaString);
         Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n},\n\"required\":[]\n}", schemaString);
     }
+
+    @Test
+    public void generateSchemaStringFromObjectWithString(){
+        JSONObjectTN objectNode = new JSONObjectTN(JSONTreeNodeType.OBJECT);
+
+        JSONStringTN stringNode = new JSONStringTN(JSONTreeNodeType.STRING);
+        stringNode.setName("prop1");
+        stringNode.setValue("jakis Napis");
+        objectNode.addProperty(stringNode);
+
+        String schemaString = "";
+        schemaString = Generator.generateSchemaString(objectNode, schemaString);
+        System.out.println(schemaString);
+        Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"string\"\n}},\n\"required\":[prop1]\n}", schemaString);
+    }
+
+    @Test
+    public void generateSchemaStringFromObjectWithMultipleStrings(){
+        JSONObjectTN objectNode = new JSONObjectTN(JSONTreeNodeType.OBJECT);
+
+        JSONStringTN stringNode = new JSONStringTN(JSONTreeNodeType.STRING);
+        stringNode.setName("prop1");
+        stringNode.setValue("jakis Napis");
+        objectNode.addProperty(stringNode);
+
+        JSONStringTN stringNode2 = new JSONStringTN(JSONTreeNodeType.STRING);
+        stringNode2.setName("prop2");
+        stringNode2.setValue("str2");
+        objectNode.addProperty(stringNode2);
+
+        String schemaString = "";
+        schemaString = Generator.generateSchemaString(objectNode, schemaString);
+        System.out.println(schemaString);
+        Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"string\"\n},\n\"prop2\": {\n" +
+                "\"type\": \"string\"\n" +
+                "}\n},\n\"required\":[prop1, prop2]\n}", schemaString);
+    }
+
+    @Test
+    public void generateSchemaStringFromObjectWithObject(){
+        JSONObjectTN objectNode = new JSONObjectTN(JSONTreeNodeType.OBJECT);
+
+        JSONObjectTN subObject = new JSONObjectTN(JSONTreeNodeType.OBJECT);
+        subObject.setName("prop1");
+        objectNode.addProperty(subObject);
+
+        JSONStringTN stringNode = new JSONStringTN(JSONTreeNodeType.STRING);
+        stringNode.setName("prop1");
+        stringNode.setValue("jakis Napis");
+        subObject.addProperty(stringNode);
+
+        String schemaString = "";
+        schemaString = Generator.generateSchemaString(objectNode, schemaString);
+        System.out.println(schemaString);
+        Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"string\"\n}\n},\n\"required\":[prop1]\n}\n},\n\"required\":[prop1]\n}", schemaString);
+    }
 }
