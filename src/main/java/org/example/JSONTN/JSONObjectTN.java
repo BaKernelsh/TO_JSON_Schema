@@ -29,12 +29,25 @@ public class JSONObjectTN extends JSONTreeNode{
         return propertyNames;
     }
 
+    public String getPropertyNamesAsString(){
+        String names = "";
+        for(String p : getPropertyNames()){
+            names = names.concat(p + ", ");
+        }
+        names = names.substring(0, names.length() - 2);
+        return names;
+    }
+
     public ArrayList<JSONTreeNode> getProperties() {
         return properties;
     }
 
     public void setProperties(ArrayList<JSONTreeNode> properties) {
         this.properties = properties;
+    }
+
+    public String getTypeAsString(){
+            return "object";
     }
 
     /*public ArrayList<String> getRequired() {

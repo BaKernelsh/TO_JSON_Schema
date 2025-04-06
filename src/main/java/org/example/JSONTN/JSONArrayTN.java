@@ -26,4 +26,8 @@ public class JSONArrayTN extends JSONTreeNode{
     public void setItems(LinkedHashSet<JSONTreeNode> items) {
         this.items = items;
     }
+
+    public String getTypeAsString(){
+        return "array";
+    }
 }

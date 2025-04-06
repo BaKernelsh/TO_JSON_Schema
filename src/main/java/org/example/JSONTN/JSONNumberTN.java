@@ -21,4 +21,11 @@ public class JSONNumberTN extends JSONTreeNode{
     public void setValue(String value) {
         this.value = Double.valueOf(value);
     }
+
+    public String getTypeAsString(){
+        if(value % 1 == 0)
+            return "integer";
+        else
+            return "number";
+    }
 }

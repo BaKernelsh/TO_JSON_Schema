@@ -28,4 +28,9 @@ public abstract class JSONTreeNode {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getTypeAsString(){
+        return "string";
+    }
+
 }

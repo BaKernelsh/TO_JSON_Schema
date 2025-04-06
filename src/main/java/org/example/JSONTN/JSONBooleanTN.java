@@ -21,4 +21,8 @@ public class JSONBooleanTN extends JSONTreeNode{
     public void setValue(boolean value) {
         this.value = value;
     }
+
+    public String getTypeAsString(){
+        return "boolean";
+    }
 }

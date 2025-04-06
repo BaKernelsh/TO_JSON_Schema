@@ -10,4 +10,9 @@ public class JSONNullTN extends JSONTreeNode{
     public JSONNullTN(JSONTreeNodeType type) {
         super(type);
     }
+
+
+    public String getTypeAsString(){
+        return "null";
+    }
 }

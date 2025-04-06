@@ -4,6 +4,8 @@ import org.example.Exception.JSONSchemaGeneratorException;
 import org.example.JSONString;
 import org.example.JSONTN.*;
 
+import java.util.ArrayList;
+
 public class Generator {
 
     public static JSONTreeNode generateSchemaTree(JSONString json) throws JSONSchemaGeneratorException {
@@ -183,6 +185,52 @@ public class Generator {
 
 
 
+    }
+
+
+    public static String generateSchemaString(JSONTreeNode treeNode, String schemaString/*, boolean isRecurrentCall*/){
+        if(/*!isRecurrentCall*/  treeNode.getName() == null //generator drzewa nie ustawia nazwy dla roota
+           && treeNode.getType() != JSONTreeNodeType.OBJECT  //prymitywny typ
+           && treeNode.getType() != JSONTreeNodeType.ARRAY)
+            return "{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"" + treeNode.getTypeAsString() + "\"\n}";
+
+        if(treeNode.getName() == null) //root jest obiektem albo tablica
+            schemaString = schemaString.concat("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"");
+        else //to nie root
+            schemaString = schemaString.concat("{\n\"type\": \"");
+
+
+        if(treeNode.getType() == JSONTreeNodeType.OBJECT){
+            schemaString = schemaString.concat("object\",\n\"properties\": {\n");
+
+            ArrayList<JSONTreeNode> properties = ((JSONObjectTN) treeNode).getProperties();
+            if( properties.isEmpty() ){
+                schemaString = schemaString.concat("},\n\"required\":[]\n}");
+                return schemaString;
+            }
+
+            int i = 0;
+            while(i < properties.size()){
+                JSONTreeNode current = properties.get(i);
+                if(current.getType() != JSONTreeNodeType.OBJECT
+                   && current.getType() != JSONTreeNodeType.ARRAY){
+                    schemaString = schemaString.concat("\"" + current.getName() + "\": {\n\"type\":\"" +
+                                                        current.getType() + "\"\n}");
+                }
+
+                //wpisanie required podobiektu bedzie tutaj
+                i++;
+            }
+
+            String propertyNames = ((JSONObjectTN) treeNode).getPropertyNamesAsString();
+            schemaString = schemaString.concat("},\n\"required\":[" + propertyNames + "]\n}");
+            return schemaString;
+        }
+
+            //if(treeNode.getName() == null)
+
+            return "";
+        //}
     }
 
 /*    public static boolean isInteger(String number){
