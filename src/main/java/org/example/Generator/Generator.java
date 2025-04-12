@@ -218,7 +218,7 @@ public class Generator {
                     schemaString = schemaString.concat("\"" + current.getName() + "\": {\n\"type\": \"" +
                                                         current.getType().toString().toLowerCase() + "\"\n}");
                 }
-                if(current.getType() == JSONTreeNodeType.OBJECT){
+                if(current.getType() == JSONTreeNodeType.OBJECT || current.getType() == JSONTreeNodeType.ARRAY){
                     schemaString = schemaString.concat("\"" + current.getName() + "\": ");
                     schemaString = generateSchemaString(current, schemaString);
                 }
@@ -239,10 +239,10 @@ public class Generator {
             return schemaString;
         }
 
+
         if(treeNode.getType() == JSONTreeNodeType.ARRAY){
             schemaString = schemaString.concat("array\",\n\"items\": ");
 
-            //LinkedHashSet<JSONTreeNode> items = ((JSONArrayTN) treeNode).getItems();
             JSONTreeNode[] items = ((JSONArrayTN) treeNode).getItems().toArray(new JSONTreeNode[0]);
 
             if(items.length == 0){
@@ -250,6 +250,7 @@ public class Generator {
                 return schemaString;
             }
 
+            schemaString = schemaString.concat("[\n");
 
             int i = 0;
             while(i < items.length){
@@ -260,8 +261,12 @@ public class Generator {
                     schemaString = schemaString.concat("{\n\"type\": \"" + current.getTypeAsString() + "\"\n}");
                 }
 
+                if(current.getType() == JSONTreeNodeType.OBJECT || current.getType() == JSONTreeNodeType.ARRAY){
+                    schemaString = generateSchemaString(current, schemaString);
+                }
 
-                if(i != items.length -1 )
+
+                if(i != items.length - 1)
                     schemaString = schemaString.concat(",");
                 schemaString = schemaString.concat("\n");
 
@@ -269,6 +274,8 @@ public class Generator {
                 i++;
             }
 
+            schemaString = schemaString.concat("]\n}");
+            return schemaString;
         }
 
             //if(treeNode.getName() == null)

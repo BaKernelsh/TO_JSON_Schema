@@ -32,9 +32,9 @@ public class JSONObjectTN extends JSONTreeNode{
     public String getPropertyNamesAsString(){
         String names = "";
         for(String p : getPropertyNames()){
-            names = names.concat(p + ", ");
+            names = names.concat("\"" + p + "\", ");
         }
-        names = names.substring(0, names.length() - 2);
+        names = names.substring(0, names.length() - 2); //usuniecie ostatniego ", "
         return names;
     }
 
