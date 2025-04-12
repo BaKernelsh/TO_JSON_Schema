@@ -5,6 +5,7 @@ import org.example.JSONString;
 import org.example.JSONTN.*;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 public class Generator {
 
@@ -222,7 +223,9 @@ public class Generator {
                     schemaString = generateSchemaString(current, schemaString);
                 }
 
+                /*if(current.getType() == JSONTreeNodeType.ARRAY){
 
+                }*/
 
 
                 if(i != properties.size() - 1)
@@ -234,6 +237,38 @@ public class Generator {
             String propertyNames = ((JSONObjectTN) treeNode).getPropertyNamesAsString();
             schemaString = schemaString.concat("},\n\"required\":[" + propertyNames + "]\n}");
             return schemaString;
+        }
+
+        if(treeNode.getType() == JSONTreeNodeType.ARRAY){
+            schemaString = schemaString.concat("array\",\n\"items\": ");
+
+            //LinkedHashSet<JSONTreeNode> items = ((JSONArrayTN) treeNode).getItems();
+            JSONTreeNode[] items = ((JSONArrayTN) treeNode).getItems().toArray(new JSONTreeNode[0]);
+
+            if(items.length == 0){
+                schemaString = schemaString.concat("{}\n}");
+                return schemaString;
+            }
+
+
+            int i = 0;
+            while(i < items.length){
+                JSONTreeNode current = items[i];
+
+                if(current.getType() != JSONTreeNodeType.OBJECT
+                   && current.getType() != JSONTreeNodeType.ARRAY){
+                    schemaString = schemaString.concat("{\n\"type\": \"" + current.getTypeAsString() + "\"\n}");
+                }
+
+
+                if(i != items.length -1 )
+                    schemaString = schemaString.concat(",");
+                schemaString = schemaString.concat("\n");
+
+
+                i++;
+            }
+
         }
 
             //if(treeNode.getName() == null)
