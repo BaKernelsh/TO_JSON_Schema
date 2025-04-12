@@ -29,8 +29,10 @@ public abstract class JSONTreeNode {
         this.name = name;
     }
 
-    public String getTypeAsString(){
-        return "string";
+    public abstract String getTypeAsString();
+
+    public boolean isRoot(){
+        return name == null;
     }
 
 }

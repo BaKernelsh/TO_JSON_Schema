@@ -20,4 +20,8 @@ public class JSONStringTN extends JSONTreeNode{
     public void setValue(String value) {
         this.value = value;
     }
+
+    public String getTypeAsString(){
+        return "string";
+    }
 }

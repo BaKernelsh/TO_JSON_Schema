@@ -3,6 +3,7 @@ package org.example.Generator;
 import org.example.Exception.JSONSchemaGeneratorException;
 import org.example.JSONString;
 import org.example.JSONTN.*;
+import org.example.JSONTN.Creators.NodeCreator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -12,64 +13,20 @@ public class Generator {
     public static JSONTreeNode generateSchemaTree(JSONString json) throws JSONSchemaGeneratorException {
         Character nextChar = json.getNextCharOmitWhitespaces();
 
-        if(nextChar == null)// throw end of json ?
+        if(nextChar == null)
             return null;
-        //TODO zlikwidowac to
-        switch(nextChar){
-            case '0': case '1': case '2': case '3': case '4':
-            case '5': case '6': case '7': case '8': case '9':
-            case '-':
-                String number = json.getNumber();
-                JSONNumberTN newNumberNode = new JSONNumberTN(JSONTreeNodeType.NUMBER);
-                newNumberNode.setValue(number);
-                return newNumberNode;
 
-            case 'n':
-                json.getNull(); // jesli to nie będzie "null" to rzuci Exception
-                return new JSONNullTN(JSONTreeNodeType.NULL);
-
-            case 't': // jesli to nie będzie "true" to rzuci Exception
-                json.getBoolean();
-                JSONBooleanTN newTrueNode = new JSONBooleanTN(JSONTreeNodeType.BOOLEAN);
-                newTrueNode.setValue(true);
-                return newTrueNode;
-
-            case 'f': // jesli to nie będzie "false" to rzuci Exception
-                json.getBoolean();
-                JSONBooleanTN newFalseNode = new JSONBooleanTN(JSONTreeNodeType.BOOLEAN);
-                newFalseNode.setValue(false);
-                return newFalseNode;
-
-            case '"':
-                json.getNextCharAndRemoveOmitWhitespaces();
-                String string = json.getPropertyName();
-                JSONStringTN newStringNode = new JSONStringTN(JSONTreeNodeType.STRING);
-                newStringNode.setValue(string);
-                return newStringNode;
-
-            case '{':
-                json.getNextCharAndRemoveOmitWhitespaces();
-                JSONObjectTN newObjectNode = processObject(json);
-                return newObjectNode;
-
-            case '[':
-                json.getNextCharAndRemoveOmitWhitespaces();
-                JSONArrayTN newArrayNode = processArray(json);
-                return newArrayNode;
-
-            default:
-                throw new JSONSchemaGeneratorException("Unexpected character: " + nextChar);
-        }
-
+        return NodeCreator.createNode(nextChar, json);
 
     }
+
 
     public static JSONObjectTN processObject(JSONString json) throws JSONSchemaGeneratorException {
         JSONObjectTN newObjectNode = new JSONObjectTN(JSONTreeNodeType.OBJECT);
 
         while(true) {
             Character nextChar = json.getNextCharAndRemoveOmitWhitespaces();
-            //JSONTreeNode newProperty;
+
 
             switch (nextChar) {
                 case '}':
@@ -112,64 +69,13 @@ public class Generator {
         while(true){
             Character nextChar = json.getNextCharOmitWhitespaces();
 
-            switch(nextChar){
-                case ']':
-                    json.getNextCharAndRemoveOmitWhitespaces();
-                    return newArrayNode;
-
-                case '0': case '1': case '2': case '3': case '4':
-                case '5': case '6': case '7': case '8': case '9':
-                case '-':
-                    String number = json.getNumber();
-                    JSONNumberTN newNumberNode = new JSONNumberTN(JSONTreeNodeType.NUMBER);
-                    newNumberNode.setValue(number);
-                    newArrayNode.addItem(newNumberNode);
-                    break;
-
-                case 'n':
-                    json.getNull(); // jesli to nie będzie "null" to rzuci Exception
-                    newArrayNode.addItem(new JSONNullTN(JSONTreeNodeType.NULL));
-                    break;
-
-                case 't': // jesli to nie będzie "true" to rzuci Exception
-                    json.getBoolean();
-                    JSONBooleanTN newTrueNode = new JSONBooleanTN(JSONTreeNodeType.BOOLEAN);
-                    newTrueNode.setValue(true);
-                    newArrayNode.addItem(newTrueNode);
-                    break;
-
-                case 'f': // jesli to nie będzie "false" to rzuci Exception
-                    json.getBoolean();
-                    JSONBooleanTN newFalseNode = new JSONBooleanTN(JSONTreeNodeType.BOOLEAN);
-                    newFalseNode.setValue(false);
-                    newArrayNode.addItem(newFalseNode);
-                    break;
-
-                case '"':
-                    json.getNextCharAndRemoveOmitWhitespaces();
-                    String string = json.getPropertyName();
-                    JSONStringTN newStringNode = new JSONStringTN(JSONTreeNodeType.STRING);
-                    newStringNode.setValue(string);
-                    newArrayNode.addItem(newStringNode);
-                    break;
-
-                case '{':
-                    json.getNextCharAndRemoveOmitWhitespaces();
-                    JSONObjectTN newObjectNode = processObject(json);
-                    newArrayNode.addItem(newObjectNode);
-                    break;
-
-                case '[':
-                    json.getNextCharAndRemoveOmitWhitespaces();
-                    JSONArrayTN newSubarrayNode = processArray(json);
-                    newArrayNode.addItem(newSubarrayNode);
-                    break;
-
-                default:
-                    throw new JSONSchemaGeneratorException("Unexpected character: " + nextChar);
-
-
+            if(nextChar == ']'){
+                json.getNextCharAndRemoveOmitWhitespaces();
+                return newArrayNode;
             }
+
+            newArrayNode.addItem(NodeCreator.createNode(nextChar, json));
+
 
             if(json.getNextCharOmitWhitespaces() == ',') {
                 json.getNextCharAndRemoveOmitWhitespaces();
@@ -184,18 +90,16 @@ public class Generator {
 
         }
 
-
-
     }
 
 
-    public static String generateSchemaString(JSONTreeNode treeNode, String schemaString/*, boolean isRecurrentCall*/){
-        if(/*!isRecurrentCall*/  treeNode.getName() == null //generator drzewa nie ustawia nazwy dla roota
+    public static String generateSchemaString(JSONTreeNode treeNode, String schemaString/*, boolean isRecurrentCall*/) throws JSONSchemaGeneratorException {
+        if(treeNode.isRoot() //generator drzewa nie ustawia nazwy dla roota
            && treeNode.getType() != JSONTreeNodeType.OBJECT  //prymitywny typ
            && treeNode.getType() != JSONTreeNodeType.ARRAY)
             return "{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"" + treeNode.getTypeAsString() + "\"\n}";
 
-        if(treeNode.getName() == null) //root jest obiektem albo tablica
+        if(treeNode.isRoot()) //root jest obiektem albo tablica
             schemaString = schemaString.concat("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"");
         else //to nie root
             schemaString = schemaString.concat("{\n\"type\": \"");
@@ -222,10 +126,6 @@ public class Generator {
                     schemaString = schemaString.concat("\"" + current.getName() + "\": ");
                     schemaString = generateSchemaString(current, schemaString);
                 }
-
-                /*if(current.getType() == JSONTreeNodeType.ARRAY){
-
-                }*/
 
 
                 if(i != properties.size() - 1)
@@ -278,10 +178,7 @@ public class Generator {
             return schemaString;
         }
 
-            //if(treeNode.getName() == null)
-
-            return "";
-        //}
+        throw new JSONSchemaGeneratorException("Unknown node type: " + treeNode.getType());
     }
 
 
