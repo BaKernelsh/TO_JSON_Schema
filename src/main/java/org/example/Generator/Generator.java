@@ -8,8 +8,8 @@ import org.example.JSONTN.Creators.NodeCreator;
 import java.util.ArrayList;
 
 
-public class Generator {
-    private static AssertionConfiguration assertionConfig = new AssertionConfiguration();
+public class Generator { //TODO instancja, konstruktor z assertionconfig, builder z allConfigurationTrue, allConfigurationFalse
+    public static AssertionConfiguration assertionConfig = new AssertionConfiguration();
 
 
     public static JSONTreeNode generateSchemaTree(JSONString json) throws JSONSchemaGeneratorException {
@@ -122,7 +122,7 @@ public class Generator {
                 if(current.getType() != JSONTreeNodeType.OBJECT
                    && current.getType() != JSONTreeNodeType.ARRAY){
                     schemaString = schemaString.concat("\"" + current.getName() + "\": {\n\"type\": \"" +
-                                                        current.getType().toString().toLowerCase() + "\"");
+                                                        current.getTypeAsString() + "\"");
                     schemaString = assertionConfig.addAssertionsToSchemaString(current, schemaString);
                     schemaString = schemaString.concat("\n}");
                 }
@@ -186,5 +186,8 @@ public class Generator {
     }
 
 
+    public void setAssertionConfiguration(AssertionConfiguration configuration){
+        assertionConfig = configuration;
+    }
 
 }

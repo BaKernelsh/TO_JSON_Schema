@@ -1,62 +1,85 @@
 package org.example.Generator;
 
 import org.example.Exception.JSONSchemaGeneratorException;
+import org.example.Function.Operation;
+import org.example.JSONTN.JSONNumberTN;
 import org.example.JSONTN.JSONStringTN;
 import org.example.JSONTN.JSONTreeNode;
 
-public class AssertionConfiguration {
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
-    private boolean minLength;
-    private boolean maxLength;
+public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszystkich
+    // <typPola, <nazwaAssertion, generatorWartosci(bool, funkcja)>>
+    private HashMap<String, LinkedHashMap<String, AssertionBoolAndAssertionStringGenerator>> assertions = new HashMap<>();
+
 
     public String addAssertionsToSchemaString(JSONTreeNode node, String schemaString) throws JSONSchemaGeneratorException {
 
         if(schemaString == null)
             throw new JSONSchemaGeneratorException("addAssertions: schemaString argument cannot be null");
+        if(!isValidType(node.getTypeAsString()))
+            throw new JSONSchemaGeneratorException("addAssertions: node has invalid type");
 
-        switch(node.getTypeAsString()){
-            case "string":
-                return addStringAssertions(schemaString, node);
+        var assertionsForNodeType = assertions.get(node.getTypeAsString());
 
-            default:
-                throw new JSONSchemaGeneratorException("addAssertions: invalid type value");
+        for(var assertionName : assertionsForNodeType.keySet()){
+            var gen = assertionsForNodeType.get(assertionName);
+            if(gen != null && gen.includeInSchemaString())
+                schemaString = schemaString.concat(",\n\"" + assertionName + "\": " + gen.generateAssertionValue(node));
+            //if(gen == null) dodac informacje o tym do jakiegos logu zamiast rzucac exception ?
         }
-
-    }
-
-    //jesli bedzie chciał dodac wlasne assertions do danego typu to zrobi klase dziedziczaca i z overriduje te metode - wywola tą i swój kod
-    private String addStringAssertions(String schemaString, JSONTreeNode node){
-        JSONStringTN strNode = (JSONStringTN) node;
-
-        if(minLength)
-            schemaString = schemaString.concat(",\n\"minLength\": " + strNode.getValue().length());
-
-        if(maxLength)
-            schemaString = schemaString.concat(",\n\"maxLength\": " + strNode.getValue().length());
 
         return schemaString;
     }
 
 
     public AssertionConfiguration(){
-        minLength = true;
-        maxLength = true;
+        assertions.put("array", new LinkedHashMap<>());
+        assertions.put("boolean", new LinkedHashMap<>());
+        assertions.put("null", new LinkedHashMap<>());
+        assertions.put("object", new LinkedHashMap<>());
+        assertions.put("string", new LinkedHashMap<>());
+        assertions.put("number", new LinkedHashMap<>());
+        assertions.put("integer", new LinkedHashMap<>());
+
+        assertions.get("string").put("minLength", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONStringTN) node).getValue().length()) ));
+        assertions.get("string").put("maxLength", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONStringTN) node).getValue().length()) ));
+
+        assertions.get("number").put("minimum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()) ));
+        assertions.get("number").put("maximum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()) ));
+
+        assertions.get("integer").put("minimum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()).split("\\.")[0] ));
+        assertions.get("integer").put("maximum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()).split("\\.")[0] ));
     }
 
-    public boolean isMinLength() {
-        return minLength;
+    private boolean isValidType(String type){
+
+        if((!type.equals("array")) &&
+           (!type.equals("boolean")) &&
+           (!type.equals("null")) &&
+           (!type.equals("object")) &&
+           (!type.equals("string")) &&
+           (!type.equals("number")) &&
+           (!type.equals("integer"))
+        ){ return false; }
+
+        return true;
     }
 
-    public void setMinLength(boolean minLength) {
-        this.minLength = minLength;
-    }
+    // dac wybor czy zastapic jak juz jest czy rzucic exception
+    public void setAssertion(String forType, String assertionName, Operation assertionValueGenerator){
+        if(forType == null)
+            throw new RuntimeException("setAssertion: argument forType cannot be null");
+        if(assertionName == null)
+            throw new RuntimeException("setAssertion: argument assertionName cannot be null");
+        if(assertionValueGenerator == null)
+            throw new RuntimeException("setAssertion: argument assertionValueGenerator cannot be null");
+        if(!isValidType(forType))
+            throw new RuntimeException("setAssertion: invalid field type");
 
-    public boolean isMaxLength() {
-        return maxLength;
-    }
+        assertions.get(forType).put(assertionName, new AssertionBoolAndAssertionStringGenerator(assertionValueGenerator));
 
-    public void setMaxLength(boolean maxLength) {
-        this.maxLength = maxLength;
     }
 
 }
