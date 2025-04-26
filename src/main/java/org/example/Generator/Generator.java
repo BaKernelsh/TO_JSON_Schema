@@ -8,22 +8,22 @@ import org.example.JSONTN.Creators.NodeCreator;
 import java.util.ArrayList;
 
 
-public class Generator { //TODO instancja, konstruktor z assertionconfig, builder z allConfigurationTrue, allConfigurationFalse
-    public static AssertionConfiguration assertionConfig = new AssertionConfiguration();
+public class Generator { //TODO builder z allConfigurationTrue, allConfigurationFalse
+    public AssertionConfiguration assertionConfig = new AssertionConfiguration();
 
 
-    public static JSONTreeNode generateSchemaTree(JSONString json) throws JSONSchemaGeneratorException {
+    public JSONTreeNode generateSchemaTree(JSONString json) throws JSONSchemaGeneratorException {
         Character nextChar = json.getNextCharOmitWhitespaces();
 
         if(nextChar == null)
             return null;
 
-        return NodeCreator.createNode(nextChar, json);
+        return NodeCreator.createNode(nextChar, json, this);
 
     }
 
 
-    public static JSONObjectTN processObject(JSONString json) throws JSONSchemaGeneratorException {
+    public JSONObjectTN processObject(JSONString json) throws JSONSchemaGeneratorException {
         JSONObjectTN newObjectNode = new JSONObjectTN(JSONTreeNodeType.OBJECT);
 
         while(true) {
@@ -65,7 +65,7 @@ public class Generator { //TODO instancja, konstruktor z assertionconfig, builde
     }
 
 
-    public static JSONArrayTN processArray(JSONString json) throws JSONSchemaGeneratorException {
+    public JSONArrayTN processArray(JSONString json) throws JSONSchemaGeneratorException {
         JSONArrayTN newArrayNode = new JSONArrayTN(JSONTreeNodeType.ARRAY);
 
         while(true){
@@ -76,7 +76,7 @@ public class Generator { //TODO instancja, konstruktor z assertionconfig, builde
                 return newArrayNode;
             }
 
-            newArrayNode.addItem(NodeCreator.createNode(nextChar, json));
+            newArrayNode.addItem(NodeCreator.createNode(nextChar, json, this));
 
 
             if(json.getNextCharOmitWhitespaces() == ',') {
@@ -95,7 +95,7 @@ public class Generator { //TODO instancja, konstruktor z assertionconfig, builde
     }
 
 
-    public static String generateSchemaString(JSONTreeNode treeNode, String schemaString) throws JSONSchemaGeneratorException {
+    public String generateSchemaString(JSONTreeNode treeNode, String schemaString) throws JSONSchemaGeneratorException {
         if(treeNode.isRoot() //generator drzewa nie ustawia nazwy dla roota
            && treeNode.getType() != JSONTreeNodeType.OBJECT  //prymitywny typ
            && treeNode.getType() != JSONTreeNodeType.ARRAY)
@@ -188,6 +188,14 @@ public class Generator { //TODO instancja, konstruktor z assertionconfig, builde
 
     public void setAssertionConfiguration(AssertionConfiguration configuration){
         assertionConfig = configuration;
+    }
+
+    public Generator(){
+
+    }
+
+    public Generator(AssertionConfiguration assertionConfig){
+        this.assertionConfig = assertionConfig;
     }
 
 }

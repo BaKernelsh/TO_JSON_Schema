@@ -7,7 +7,7 @@ import org.example.JSONTN.*;
 
 public class NodeCreator {
 
-    public static JSONTreeNode createNode(Character nextChar, JSONString json) throws JSONSchemaGeneratorException {
+    public static JSONTreeNode createNode(Character nextChar, JSONString json, Generator callerGenerator) throws JSONSchemaGeneratorException {
 
         switch(nextChar){
             case '0': case '1': case '2': case '3': case '4':
@@ -43,12 +43,12 @@ public class NodeCreator {
 
             case '{':
                 json.getNextCharAndRemoveOmitWhitespaces();
-                JSONObjectTN newObjectNode = Generator.processObject(json);
+                JSONObjectTN newObjectNode = callerGenerator.processObject(json);
                 return newObjectNode;
 
             case '[':
                 json.getNextCharAndRemoveOmitWhitespaces();
-                JSONArrayTN newArrayNode = Generator.processArray(json);
+                JSONArrayTN newArrayNode = callerGenerator.processArray(json);
                 return newArrayNode;
 
             default:

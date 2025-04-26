@@ -45,10 +45,13 @@ public class AssertionGenerationTest {
                     return "Double.toString(((JSONNumberTN) node).getValue()).split(\"\\.\")[0]";
             });
 
-            Generator.assertionConfig = config;
+            config.setAllUnused();
+            config.setAllUsed();
+            Generator generator = new Generator();
+            generator.assertionConfig = config;
 
             String schemaString = "";
-            schemaString = Generator.generateSchemaString(objNode, schemaString);
+            schemaString = generator.generateSchemaString(objNode, schemaString);
             System.out.println(schemaString);
         });
 

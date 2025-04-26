@@ -82,4 +82,21 @@ public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszy
 
     }
 
+    public void setAllUnused(){
+        for(var type : assertions.keySet()){
+            for(var assertion : assertions.get(type).keySet()){
+                assertions.get(type).get(assertion).setIncludeInSchemaString(false);
+            }
+        }
+    }
+
+    public void setAllUsed(){
+        for(var type : assertions.keySet()){
+            for(var assertion : assertions.get(type).keySet()){
+                assertions.get(type).get(assertion).setIncludeInSchemaString(true);
+            }
+        }
+    }
+
+
 }
