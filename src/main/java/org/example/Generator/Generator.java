@@ -6,9 +6,11 @@ import org.example.JSONTN.*;
 import org.example.JSONTN.Creators.NodeCreator;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+
 
 public class Generator {
+    private static AssertionConfiguration assertionConfig = new AssertionConfiguration();
+
 
     public static JSONTreeNode generateSchemaTree(JSONString json) throws JSONSchemaGeneratorException {
         Character nextChar = json.getNextCharOmitWhitespaces();
@@ -93,7 +95,7 @@ public class Generator {
     }
 
 
-    public static String generateSchemaString(JSONTreeNode treeNode, String schemaString/*, boolean isRecurrentCall*/) throws JSONSchemaGeneratorException {
+    public static String generateSchemaString(JSONTreeNode treeNode, String schemaString) throws JSONSchemaGeneratorException {
         if(treeNode.isRoot() //generator drzewa nie ustawia nazwy dla roota
            && treeNode.getType() != JSONTreeNodeType.OBJECT  //prymitywny typ
            && treeNode.getType() != JSONTreeNodeType.ARRAY)
@@ -120,7 +122,9 @@ public class Generator {
                 if(current.getType() != JSONTreeNodeType.OBJECT
                    && current.getType() != JSONTreeNodeType.ARRAY){
                     schemaString = schemaString.concat("\"" + current.getName() + "\": {\n\"type\": \"" +
-                                                        current.getType().toString().toLowerCase() + "\"\n}");
+                                                        current.getType().toString().toLowerCase() + "\"");
+                    schemaString = assertionConfig.addAssertionsToSchemaString(current, schemaString);
+                    schemaString = schemaString.concat("\n}");
                 }
                 if(current.getType() == JSONTreeNodeType.OBJECT || current.getType() == JSONTreeNodeType.ARRAY){
                     schemaString = schemaString.concat("\"" + current.getName() + "\": ");

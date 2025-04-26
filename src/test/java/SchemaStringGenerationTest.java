@@ -276,5 +276,20 @@ public class SchemaStringGenerationTest {
         });
     }
 
+    @Test
+    public void generateSchemaStringWithStringAssertions(){
+        Assertions.assertDoesNotThrow(() -> {
+            JSONObjectTN objNode = new JSONObjectTN(JSONTreeNodeType.OBJECT);
+            JSONStringTN strNode = new JSONStringTN(JSONTreeNodeType.STRING);
+            strNode.setValue("blabla");
+            strNode.setName("string");
+            objNode.addProperty(strNode);
+
+            String schemaString = "";
+            schemaString = Generator.generateSchemaString(objNode, schemaString);
+            System.out.println(schemaString);
+        });
+
+    }
 
 }
