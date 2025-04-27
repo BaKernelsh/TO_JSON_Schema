@@ -1,6 +1,7 @@
 import org.example.Generator.AssertionConfiguration;
 import org.example.Generator.Generator;
 
+import org.example.JSONString;
 import org.example.JSONTN.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,7 +24,7 @@ public class SchemaStringGenerationTest {
         Assertions.assertDoesNotThrow(() -> {
             JSONNullTN nullNode = new JSONNullTN(JSONTreeNodeType.NULL);
             String schemaString = "";
-            schemaString = generator.generateSchemaString(nullNode, schemaString);
+            schemaString = generator.generateSchemaString(nullNode, schemaString, 0);
             Assertions.assertEquals("{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"null\"\n}", schemaString);
             //System.out.println(schemaString);
         });
@@ -35,7 +36,7 @@ public class SchemaStringGenerationTest {
         Assertions.assertDoesNotThrow(() -> {
             JSONBooleanTN boolNode = new JSONBooleanTN(JSONTreeNodeType.BOOLEAN);
             String schemaString = "";
-            schemaString = generator.generateSchemaString(boolNode, schemaString);
+            schemaString = generator.generateSchemaString(boolNode, schemaString, 0);
             Assertions.assertEquals("{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"boolean\"\n}", schemaString);
             //System.out.println(schemaString);
         });
@@ -47,7 +48,7 @@ public class SchemaStringGenerationTest {
             JSONNumberTN integerNode = new JSONNumberTN(JSONTreeNodeType.NUMBER);
             integerNode.setValue("123456");
             String schemaString = "";
-            schemaString = generator.generateSchemaString(integerNode, schemaString);
+            schemaString = generator.generateSchemaString(integerNode, schemaString, 0);
             Assertions.assertEquals("{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"integer\"\n}", schemaString);
             //System.out.println(schemaString);
         });
@@ -59,7 +60,7 @@ public class SchemaStringGenerationTest {
             JSONNumberTN numberNode = new JSONNumberTN(JSONTreeNodeType.NUMBER);
             numberNode.setValue("123456.7890");
             String schemaString = "";
-            schemaString = generator.generateSchemaString(numberNode, schemaString);
+            schemaString = generator.generateSchemaString(numberNode, schemaString, 0);
             Assertions.assertEquals("{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"number\"\n}", schemaString);
             //System.out.println(schemaString);
         });
@@ -71,7 +72,7 @@ public class SchemaStringGenerationTest {
             JSONNumberTN numberNode = new JSONNumberTN(JSONTreeNodeType.NUMBER);
             numberNode.setValue("12e-2");
             String schemaString = "";
-            schemaString = generator.generateSchemaString(numberNode, schemaString);
+            schemaString = generator.generateSchemaString(numberNode, schemaString, 0);
             Assertions.assertEquals("{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"number\"\n}", schemaString);
             //System.out.println(schemaString);
         });
@@ -83,7 +84,7 @@ public class SchemaStringGenerationTest {
             JSONStringTN stringNode = new JSONStringTN(JSONTreeNodeType.STRING);
             stringNode.setValue("jakis Napis");
             String schemaString = "";
-            schemaString = generator.generateSchemaString(stringNode, schemaString);
+            schemaString = generator.generateSchemaString(stringNode, schemaString, 0);
             Assertions.assertEquals("{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"string\"\n}", schemaString);
             //System.out.println(schemaString);
         });
@@ -94,8 +95,8 @@ public class SchemaStringGenerationTest {
         Assertions.assertDoesNotThrow(() -> {
             JSONObjectTN objectNode = new JSONObjectTN(JSONTreeNodeType.OBJECT);
             String schemaString = "";
-            schemaString = generator.generateSchemaString(objectNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(objectNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n},\n\"required\":[]\n}", schemaString);
         });
     }
@@ -111,8 +112,8 @@ public class SchemaStringGenerationTest {
             objectNode.addProperty(stringNode);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(objectNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(objectNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"string\"\n}\n},\n\"required\":[\"prop1\"]\n}", schemaString);
         });
     }
@@ -133,8 +134,8 @@ public class SchemaStringGenerationTest {
             objectNode.addProperty(stringNode2);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(objectNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(objectNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"string\"\n},\n\"prop2\": {\n" +
                     "\"type\": \"string\"\n" +
                     "}\n},\n\"required\":[\"prop1\", \"prop2\"]\n}", schemaString);
@@ -156,8 +157,8 @@ public class SchemaStringGenerationTest {
             subObject.addProperty(stringNode);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(objectNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(objectNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"string\"\n}\n},\n\"required\":[\"prop1\"]\n}\n},\n\"required\":[\"prop1\"]\n}", schemaString);
         });
     }
@@ -173,8 +174,8 @@ public class SchemaStringGenerationTest {
             objectNode.addProperty(arrayProperty);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(objectNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(objectNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"array\",\n\"items\": {}\n}\n},\n\"required\":[\"prop1\"]\n}", schemaString);
         });
     }
@@ -201,7 +202,7 @@ public class SchemaStringGenerationTest {
             objectNode.addProperty(arrayProperty2);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(objectNode, schemaString);
+            schemaString = generator.generateSchemaString(objectNode, schemaString, 0);
             //System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"object\",\n\"properties\": {\n\"prop1\": {\n\"type\": \"array\",\n\"items\": [\n{\n\"type\": \"integer\"\n},\n{\n\"type\": \"boolean\"\n}\n]\n},\n\"prop2\": {\n\"type\": \"array\",\n\"items\": {}\n}\n},\n\"required\":[\"prop1\", \"prop2\"]\n}", schemaString);
         });
@@ -214,8 +215,8 @@ public class SchemaStringGenerationTest {
             JSONArrayTN arrayNode = new JSONArrayTN(JSONTreeNodeType.ARRAY);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(arrayNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(arrayNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"array\",\n\"items\": {}\n}", schemaString);
         });
     }
@@ -229,8 +230,8 @@ public class SchemaStringGenerationTest {
             arrayNode.addItem(stringItem);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(arrayNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(arrayNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"array\",\n\"items\": [\n{\n\"type\": \"string\"\n}\n]\n}", schemaString);
         });
     }
@@ -248,8 +249,8 @@ public class SchemaStringGenerationTest {
             arrayNode.addItem(stringItem2);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(arrayNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(arrayNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"array\",\n\"items\": [\n{\n\"type\": \"string\"\n},\n{\n\"type\": \"string\"\n}\n]\n}", schemaString);
         });
     }
@@ -268,8 +269,8 @@ public class SchemaStringGenerationTest {
             //arrayNode.addItem(stringItem);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(arrayNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(arrayNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"array\",\n\"items\": [\n{\n\"type\": \"object\",\n\"properties\": {\n},\n\"required\":[]\n}\n]\n}", schemaString);
         });
     }
@@ -280,14 +281,33 @@ public class SchemaStringGenerationTest {
             JSONArrayTN arrayNode = new JSONArrayTN(JSONTreeNodeType.ARRAY);
             JSONArrayTN arrayItem = new JSONArrayTN(JSONTreeNodeType.ARRAY);
             arrayItem.setName("arr");
+            JSONArrayTN arrayItem2 = new JSONArrayTN(JSONTreeNodeType.ARRAY);
+            arrayItem2.setName("arr2");
             arrayNode.addItem(arrayItem);
+            arrayItem.addItem(arrayItem2);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(arrayNode, schemaString);
-            //System.out.println(schemaString);
+            schemaString = generator.generateSchemaString(arrayNode, schemaString, 0);
+            System.out.println(schemaString);
             Assertions.assertEquals("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"array\",\n\"items\": [\n{\n\"type\": \"array\",\n\"items\": {}\n}\n]\n}", schemaString);
         });
     }
+
+    @Test
+    public void generateArraySchemaFromString(){
+        Assertions.assertDoesNotThrow(() -> {
+            JSONString json = new JSONString("[{\"k\":23},{\"k\":[]}]");
+            JSONTreeNode tree = generator.generateSchemaTree(json);
+
+            String schemaString = "";
+            schemaString = generator.generateSchemaString(tree, schemaString, 0);
+            System.out.println(schemaString);
+
+
+        });
+    }
+
+
 
     @Test
     public void generateSchemaStringWithStringAssertions(){
@@ -299,7 +319,7 @@ public class SchemaStringGenerationTest {
             objNode.addProperty(strNode);
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(objNode, schemaString);
+            schemaString = generator.generateSchemaString(objNode, schemaString, 0);
             System.out.println(schemaString);
         });
 

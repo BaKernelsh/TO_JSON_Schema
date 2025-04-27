@@ -9,7 +9,8 @@ import java.util.ArrayList;
 
 
 public class Generator { //TODO builder z allConfigurationTrue, allConfigurationFalse
-    public AssertionConfiguration assertionConfig = new AssertionConfiguration();
+    private AssertionConfiguration assertionConfig = new AssertionConfiguration();
+    private SchemaStringElements schemaStringElements = new SchemaStringElements();
 
 
     public JSONTreeNode generateSchemaTree(JSONString json) throws JSONSchemaGeneratorException {
@@ -76,8 +77,9 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                 return newArrayNode;
             }
 
-            newArrayNode.addItem(NodeCreator.createNode(nextChar, json, this));
-
+            JSONTreeNode newItem = NodeCreator.createNode(nextChar, json, this);
+            newItem.setName("item");
+            newArrayNode.addItem(newItem);
 
             if(json.getNextCharOmitWhitespaces() == ',') {
                 json.getNextCharAndRemoveOmitWhitespaces();
@@ -94,25 +96,28 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
 
     }
 
+    public String generateSchemaString(JSONTreeNode treeNode, String schemaString, int nestLevel) throws JSONSchemaGeneratorException {
+        return generateSchemaString(treeNode, schemaString, nestLevel, false);
+    }
 
-    public String generateSchemaString(JSONTreeNode treeNode, String schemaString) throws JSONSchemaGeneratorException {
+    public String generateSchemaString(JSONTreeNode treeNode, String schemaString, int nestLevel, boolean subarray) throws JSONSchemaGeneratorException {
         if(treeNode.isRoot() //generator drzewa nie ustawia nazwy dla roota
            && treeNode.getType() != JSONTreeNodeType.OBJECT  //prymitywny typ
            && treeNode.getType() != JSONTreeNodeType.ARRAY)
-            return "{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"" + treeNode.getTypeAsString() + "\"\n}";
+            return schemaStringElements.primitiveTypeAsRoot(treeNode);
 
         if(treeNode.isRoot()) //root jest obiektem albo tablica
-            schemaString = schemaString.concat("{\n\"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n\"type\": \"");
+            schemaString = schemaString.concat(schemaStringElements.objectOrArrayAsRoot(nestLevel));
         else //to nie root
-            schemaString = schemaString.concat("{\n\"type\": \"");
+            schemaString = schemaString.concat(schemaStringElements.typeKeywordAndColon(nestLevel));
 
 
         if(treeNode.getType() == JSONTreeNodeType.OBJECT){
-            schemaString = schemaString.concat("object\",\n\"properties\": {\n");
+            schemaString = schemaString.concat(schemaStringElements.objectTypeAndPropertiesKeyword(nestLevel));
 
             ArrayList<JSONTreeNode> properties = ((JSONObjectTN) treeNode).getProperties();
             if( properties.isEmpty() ){
-                schemaString = schemaString.concat("},\n\"required\":[]\n}");
+                schemaString = schemaString.concat(schemaStringElements.propertiesClosingAndEmptyPropertiesAndObjectClosing(nestLevel));
                 return schemaString;
             }
 
@@ -121,14 +126,14 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                 JSONTreeNode current = properties.get(i);
                 if(current.getType() != JSONTreeNodeType.OBJECT
                    && current.getType() != JSONTreeNodeType.ARRAY){
-                    schemaString = schemaString.concat("\"" + current.getName() + "\": {\n\"type\": \"" +
-                                                        current.getTypeAsString() + "\"");
-                    schemaString = assertionConfig.addAssertionsToSchemaString(current, schemaString);
-                    schemaString = schemaString.concat("\n}");
+                    schemaString = schemaString.concat(schemaStringElements.primitivePropertyNameAndType(nestLevel, current));
+                    // nestLevel+1 zeby dla nestLevel==0 dobrze generowalo wciecie
+                    schemaString = assertionConfig.addAssertionsToSchemaString(current, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel+1));
+                    schemaString = schemaString.concat(schemaStringElements.primitivePropertyClosing(nestLevel));
                 }
                 if(current.getType() == JSONTreeNodeType.OBJECT || current.getType() == JSONTreeNodeType.ARRAY){
-                    schemaString = schemaString.concat("\"" + current.getName() + "\": ");
-                    schemaString = generateSchemaString(current, schemaString);
+                    schemaString = schemaString.concat(schemaStringElements.objectOrArrayPropertyName(nestLevel, current));
+                    schemaString = generateSchemaString(current, schemaString, nestLevel+1, false);
                 }
 
 
@@ -138,19 +143,22 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                 i++;
             }
 
-            String propertyNames = ((JSONObjectTN) treeNode).getPropertyNamesAsString();
-            schemaString = schemaString.concat("},\n\"required\":[" + propertyNames + "]\n}");
+
+            schemaString = schemaString.concat(schemaStringElements.propertiesClosing(nestLevel));
+            schemaString = assertionConfig.addAssertionsToSchemaString(treeNode, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel));
+            schemaString = schemaString.concat(schemaStringElements.objectClosing(nestLevel));
             return schemaString;
         }
 
 
         if(treeNode.getType() == JSONTreeNodeType.ARRAY){
-            schemaString = schemaString.concat("array\",\n\"items\": ");
+            schemaString = schemaString.concat(schemaStringElements.arrayTypeAndItemsKeyword(nestLevel, subarray));
 
             JSONTreeNode[] items = ((JSONArrayTN) treeNode).getItems().toArray(new JSONTreeNode[0]);
 
             if(items.length == 0){
-                schemaString = schemaString.concat("{}\n}");
+                schemaString = schemaString.concat(schemaStringElements.emptyArrayItemList());
+                schemaString = schemaString.concat(schemaStringElements.arrayClosing(nestLevel));
                 return schemaString;
             }
 
@@ -162,11 +170,18 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
 
                 if(current.getType() != JSONTreeNodeType.OBJECT
                    && current.getType() != JSONTreeNodeType.ARRAY){
-                    schemaString = schemaString.concat("{\n\"type\": \"" + current.getTypeAsString() + "\"\n}");
+                    schemaString = schemaString.concat(schemaStringElements.primitiveArrayItem(nestLevel, current));
+                    schemaString = assertionConfig.addAssertionsToSchemaString(current, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel+1));
+                    schemaString = schemaString.concat(schemaStringElements.primitiveArrayItemClosing(nestLevel));
                 }
 
                 if(current.getType() == JSONTreeNodeType.OBJECT || current.getType() == JSONTreeNodeType.ARRAY){
-                    schemaString = generateSchemaString(current, schemaString);
+                    if(current.getType() == JSONTreeNodeType.ARRAY){
+                        schemaString = schemaString.concat(schemaStringElements.indentationForSubarray(nestLevel));
+                        schemaString = generateSchemaString(current, schemaString, nestLevel+1,true);
+                    }
+                    else
+                        schemaString = generateSchemaString(current, schemaString, nestLevel+1,false);
                 }
 
 
@@ -178,7 +193,10 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                 i++;
             }
 
-            schemaString = schemaString.concat("]\n}");
+            //schemaString = schemaString.concat("]\n}");
+            schemaString = schemaString.concat(schemaStringElements.itemListClosing(nestLevel));
+            schemaString = schemaString.concat(schemaStringElements.arrayClosing(nestLevel));
+
             return schemaString;
         }
 
@@ -196,6 +214,15 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
 
     public Generator(AssertionConfiguration assertionConfig){
         this.assertionConfig = assertionConfig;
+        this.schemaStringElements.setFormattingReadable();
+    }
+
+    public Generator(AssertionConfiguration assertionConfig, boolean compactFormatting){
+        this.assertionConfig = assertionConfig;
+        if(compactFormatting)
+            this.schemaStringElements.setFormattingCompact();
+        else
+            this.schemaStringElements.setFormattingReadable();
     }
 
 }

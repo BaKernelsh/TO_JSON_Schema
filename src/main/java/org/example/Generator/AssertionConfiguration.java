@@ -2,19 +2,18 @@ package org.example.Generator;
 
 import org.example.Exception.JSONSchemaGeneratorException;
 import org.example.Function.Operation;
-import org.example.JSONTN.JSONNumberTN;
-import org.example.JSONTN.JSONStringTN;
-import org.example.JSONTN.JSONTreeNode;
+import org.example.JSONTN.*;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.regex.Pattern;
 
 public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszystkich
     // <typPola, <nazwaAssertion, generatorWartosci(bool, funkcja)>>
     private HashMap<String, LinkedHashMap<String, AssertionBoolAndAssertionStringGenerator>> assertions = new HashMap<>();
 
 
-    public String addAssertionsToSchemaString(JSONTreeNode node, String schemaString) throws JSONSchemaGeneratorException {
+    public String addAssertionsToSchemaString(JSONTreeNode node, String schemaString, String indentation) throws JSONSchemaGeneratorException {
 
         if(schemaString == null)
             throw new JSONSchemaGeneratorException("addAssertions: schemaString argument cannot be null");
@@ -26,7 +25,7 @@ public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszy
         for(var assertionName : assertionsForNodeType.keySet()){
             var gen = assertionsForNodeType.get(assertionName);
             if(gen != null && gen.includeInSchemaString())
-                schemaString = schemaString.concat(",\n\"" + assertionName + "\": " + gen.generateAssertionValue(node));
+                schemaString = schemaString.concat(",\n"+indentation+"\"" + assertionName + "\": " + gen.generateAssertionValue(node));
             //if(gen == null) dodac informacje o tym do jakiegos logu zamiast rzucac exception ?
         }
 
@@ -43,14 +42,32 @@ public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszy
         assertions.put("number", new LinkedHashMap<>());
         assertions.put("integer", new LinkedHashMap<>());
 
-        assertions.get("string").put("minLength", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONStringTN) node).getValue().length()) ));
-        assertions.get("string").put("maxLength", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONStringTN) node).getValue().length()) ));
 
         assertions.get("number").put("minimum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()) ));
         assertions.get("number").put("maximum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()) ));
+        assertions.get("number").put("multipleOf", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()) ));
 
-        assertions.get("integer").put("minimum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()).split("\\.")[0] ));
+        assertions.get("integer").put("multipleOf", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()).split("\\.")[0] ));
         assertions.get("integer").put("maximum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()).split("\\.")[0] ));
+        assertions.get("integer").put("exclusiveMaximum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue() +1).split("\\.")[0] ));
+        assertions.get("integer").put("minimum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue()).split("\\.")[0] ));
+        assertions.get("integer").put("exclusiveMinimum", new AssertionBoolAndAssertionStringGenerator(node -> Double.toString(((JSONNumberTN) node).getValue() -1).split("\\.")[0] ));
+
+
+        assertions.get("string").put("maxLength", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONStringTN) node).getValue().length()) ));
+        assertions.get("string").put("minLength", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONStringTN) node).getValue().length()) ));
+        assertions.get("string").put("pattern", new AssertionBoolAndAssertionStringGenerator(node -> Pattern.quote(((JSONStringTN) node).getValue()) ));
+
+        assertions.get("array").put("maxItems", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONArrayTN) node).getItems().size()) ));
+        assertions.get("array").put("minItems", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONArrayTN) node).getItems().size()) ));
+        assertions.get("array").put("uniqueItems", new AssertionBoolAndAssertionStringGenerator(node -> "false" ));
+
+
+        assertions.get("object").put("required", new AssertionBoolAndAssertionStringGenerator(node -> "["+((JSONObjectTN) node).getPropertyNamesAsString()+"]" ));
+        assertions.get("object").put("maxProperties", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONObjectTN) node).getProperties().size()) ));
+        assertions.get("object").put("minProperties", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONObjectTN) node).getProperties().size()) ));
+        //TODO dependentRequired
+
     }
 
     private boolean isValidType(String type){

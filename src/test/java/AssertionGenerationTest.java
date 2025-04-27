@@ -1,12 +1,10 @@
 import org.example.Generator.AssertionBoolAndAssertionStringGenerator;
 import org.example.Generator.AssertionConfiguration;
 import org.example.Generator.Generator;
-import org.example.JSONTN.JSONNumberTN;
-import org.example.JSONTN.JSONObjectTN;
-import org.example.JSONTN.JSONStringTN;
-import org.example.JSONTN.JSONTreeNodeType;
+import org.example.JSONTN.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
 
 public class AssertionGenerationTest {
 
@@ -29,13 +27,20 @@ public class AssertionGenerationTest {
         Assertions.assertDoesNotThrow(() -> {
             JSONObjectTN objNode = new JSONObjectTN(JSONTreeNodeType.OBJECT);
             JSONNumberTN nmbNode = new JSONNumberTN(JSONTreeNodeType.NUMBER);
+            JSONArrayTN arrNode = new JSONArrayTN(JSONTreeNodeType.ARRAY);
             nmbNode.setName("numberProp");
-            nmbNode.setValue("123e-3");
+            nmbNode.setValue("123");
             objNode.addProperty(nmbNode);
             JSONStringTN strNode = new JSONStringTN(JSONTreeNodeType.STRING);
             strNode.setName("str");
             strNode.setValue("qwerty");
             objNode.addProperty(strNode);
+            JSONNumberTN nmbNode2 = new JSONNumberTN(JSONTreeNodeType.NUMBER);
+            nmbNode2.setName("numberProp");
+            nmbNode2.setValue("123456");
+            arrNode.setName("arrProp");
+            arrNode.addItem(nmbNode2);
+            objNode.addProperty(arrNode);
 
             AssertionConfiguration config = new AssertionConfiguration();
             config.setAssertion("number", "minimum", node -> {
@@ -47,12 +52,13 @@ public class AssertionGenerationTest {
 
             config.setAllUnused();
             config.setAllUsed();
-            Generator generator = new Generator();
-            generator.assertionConfig = config;
+            Generator generator = new Generator(config);
+            //generator.assertionConfig = config;
 
             String schemaString = "";
-            schemaString = generator.generateSchemaString(objNode, schemaString);
+            schemaString = generator.generateSchemaString(objNode, schemaString, 0);
             System.out.println(schemaString);
+
         });
 
     }
