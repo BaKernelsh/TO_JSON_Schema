@@ -1,7 +1,7 @@
 package org.example.Generator;
 
 import org.example.Exception.JSONSchemaGeneratorException;
-import org.example.Function.Operation;
+import org.example.Function.OperationReturnsString;
 import org.example.JSONTN.*;
 
 import java.util.HashMap;
@@ -85,7 +85,7 @@ public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszy
     }
 
     // dac wybor czy zastapic jak juz jest czy rzucic exception
-    public void setAssertion(String forType, String assertionName, Operation assertionValueGenerator){
+    public void setAssertion(String forType, String assertionName, OperationReturnsString assertionValueGenerator){
         if(forType == null)
             throw new RuntimeException("setAssertion: argument forType cannot be null");
         if(assertionName == null)

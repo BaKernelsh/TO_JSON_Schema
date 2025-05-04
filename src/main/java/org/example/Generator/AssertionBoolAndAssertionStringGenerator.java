@@ -1,11 +1,11 @@
 package org.example.Generator;
 
-import org.example.Function.Operation;
+import org.example.Function.OperationReturnsString;
 import org.example.JSONTN.JSONTreeNode;
 
 public class AssertionBoolAndAssertionStringGenerator {
 
-    private Operation generateAssertionString;
+    private OperationReturnsString generateAssertionString;
     private boolean includeInSchemaString = true;
 
 
@@ -17,7 +17,7 @@ public class AssertionBoolAndAssertionStringGenerator {
     public AssertionBoolAndAssertionStringGenerator(){
 
     }
-    public AssertionBoolAndAssertionStringGenerator(Operation generateAssertionString){
+    public AssertionBoolAndAssertionStringGenerator(OperationReturnsString generateAssertionString){
         this.generateAssertionString = generateAssertionString;
     }
 
@@ -30,11 +30,11 @@ public class AssertionBoolAndAssertionStringGenerator {
         this.includeInSchemaString = includeInSchemaString;
     }
 
-    public Operation getGenerateAssertionString() {
+    public OperationReturnsString getGenerateAssertionString() {
         return generateAssertionString;
     }
 
-    public void setAssertionValueStringGenerationMethod(Operation generateAssertionString) {
+    public void setAssertionValueStringGenerationMethod(OperationReturnsString generateAssertionString) {
         this.generateAssertionString = generateAssertionString;
     }
 }
