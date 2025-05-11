@@ -1,6 +1,7 @@
 import org.example.Generator.AssertionConfiguration;
 import org.example.Generator.Generator;
 import org.example.JSONString;
+import org.example.JSONTN.JSONNumberTN;
 import org.example.JSONTN.JSONObjectTN;
 import org.example.JSONTN.JSONStringTN;
 import org.example.JSONTN.JSONTreeNode;
@@ -15,7 +16,7 @@ public class SchemaTreeGenerationTest {
     @BeforeAll
     public static void setGeneratorInstance(){
         AssertionConfiguration assertionConfiguration = new AssertionConfiguration();
-        assertionConfiguration.setAllUnused();
+        //assertionConfiguration.setAllUnused();
 
         generator = new Generator(assertionConfiguration);
     }
@@ -32,9 +33,12 @@ public class SchemaTreeGenerationTest {
 
             JSONTreeNode schemaRoot = generator.generateSchemaTree(schemaString);
             Assertions.assertEquals("$schema", ((JSONObjectTN) schemaRoot).getProperties().getFirst().getName() );
-            Assertions.assertInstanceOf(JSONStringTN.class, ((JSONObjectTN) schemaRoot).getProperties().get(1));
 
+            Assertions.assertInstanceOf(JSONStringTN.class, ((JSONObjectTN) schemaRoot).getProperties().get(1));
             Assertions.assertEquals("number", ((JSONStringTN) ((JSONObjectTN) schemaRoot).getProperties().get(1)).getValue() );
+            
+            Assertions.assertEquals(1234.56, ((JSONNumberTN) ((JSONObjectTN) schemaRoot).getProperties().get(2)).getValue() );
+
         });
     }
 }

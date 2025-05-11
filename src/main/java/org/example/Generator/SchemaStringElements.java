@@ -1,5 +1,6 @@
 package org.example.Generator;
 
+import org.example.Exception.JSONSchemaGeneratorException;
 import org.example.JSONTN.JSONTreeNode;
 
 public class SchemaStringElements {
@@ -21,11 +22,21 @@ public class SchemaStringElements {
         return indentation;
     }
 
-    public String primitiveTypeAsRoot(JSONTreeNode treeNode){
-        if(compact)
-            return "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"" + treeNode.getTypeAsString() + "\"}";
-        else{
-            return "{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"" + treeNode.getTypeAsString() + "\"\n}";}
+    public String primitiveTypeAsRoot(JSONTreeNode treeNode, AssertionConfiguration assertionConfig) throws JSONSchemaGeneratorException {
+        if(compact) {
+            //return "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"" + treeNode.getTypeAsString() + "\"}";
+            String schemaString = "{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"" + treeNode.getTypeAsString() + "\"";
+            schemaString = assertionConfig.addAssertionsToSchemaString(treeNode, schemaString, this.indentationBeforeAssertions(0)) + "}";
+            return schemaString;
+        }
+        //schemaString = assertionConfig.addAssertionsToSchemaString(treeNode, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel+1));
+
+        else {
+            //return "{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"" + treeNode.getTypeAsString() + "\"\n}";}
+            String schemaString = "{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"" + treeNode.getTypeAsString() + "\"";
+            schemaString = assertionConfig.addAssertionsToSchemaString(treeNode, schemaString, this.indentationBeforeAssertions(0)) + "\n}";
+            return schemaString;
+        }
     }
 
     public String objectOrArrayAsRoot(int nestLevel){

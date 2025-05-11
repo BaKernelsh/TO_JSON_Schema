@@ -103,8 +103,10 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
     public String generateSchemaString(JSONTreeNode treeNode, String schemaString, int nestLevel, boolean subarray) throws JSONSchemaGeneratorException {
         if(treeNode.isRoot() //generator drzewa nie ustawia nazwy dla roota
            && treeNode.getType() != JSONTreeNodeType.OBJECT  //prymitywny typ
-           && treeNode.getType() != JSONTreeNodeType.ARRAY)
-            return schemaStringElements.primitiveTypeAsRoot(treeNode);
+           && treeNode.getType() != JSONTreeNodeType.ARRAY) {
+            return schemaStringElements.primitiveTypeAsRoot(treeNode, assertionConfig);
+            //schemaString = assertionConfig.addAssertionsToSchemaString(treeNode, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel+1));
+        }
 
         if(treeNode.isRoot()) //root jest obiektem albo tablica
             schemaString = schemaString.concat(schemaStringElements.objectOrArrayAsRoot(nestLevel));

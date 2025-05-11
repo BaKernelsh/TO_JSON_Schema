@@ -10,5 +10,5 @@ import javax.xml.validation.Validator;
 @FunctionalInterface
 public interface OperationReturnsValidationResultAndErrorMessage {
 
-    ValidationResultAndErrorMessage execute(JSONTreeNode node, JSONString keywordValue, JSONValidator validatorInstance);
+    ValidationResultAndErrorMessage execute(JSONTreeNode node, JSONTreeNode assertion, JSONValidator validatorInstance);
 }

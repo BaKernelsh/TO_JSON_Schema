@@ -12,12 +12,13 @@ public class VerifyBoolAndVerifierMethod {
     private boolean verify = true;
 
 
-    public ValidationResultAndErrorMessage verify(JSONTreeNode node, JSONString keywordValue, JSONValidator validatorInstance){
+    public ValidationResultAndErrorMessage verify(JSONTreeNode node, JSONTreeNode assertion, JSONValidator validatorInstance){
         if(verify)
-            return verifierMethod.execute(node, keywordValue, validatorInstance);
+            return verifierMethod.execute(node, assertion, validatorInstance);
         else
             return ValidationResultAndErrorMessage.newInstanceValid();
     }
+
 
     public VerifyBoolAndVerifierMethod(OperationReturnsValidationResultAndErrorMessage verifierMethod) {
         this.verifierMethod = verifierMethod;

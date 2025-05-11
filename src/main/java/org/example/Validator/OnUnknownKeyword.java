@@ -2,6 +2,6 @@ package org.example.Validator;
 
 public enum OnUnknownKeyword {
     THROW,
-    TRUE,
-    FALSE
+    KEYWORD_VALIDATION_UNSUCCESFUL_CONTINUE_VALIDATION,
+    KEYWORD_VALIDATION_SUCCESFUL_CONTINUE_VALIDATION
 }
