@@ -1,5 +1,6 @@
 package org.example.Validator;
 
+import org.example.Generator.Generator;
 import org.example.JSONString;
 import org.example.JSONTN.JSONNumberTN;
 import org.example.JSONTN.JSONTreeNode;
@@ -8,10 +9,20 @@ import java.util.HashMap;
 public class JSONValidator {
     //<typ, <keyword,verifier>
     private HashMap<String, HashMap<String, VerifyBoolAndVerifierMethod>> verifiers = new HashMap<>();
+    private final Generator generator = new Generator();
     private OnUnknownKeyword onUnknownKeyword = OnUnknownKeyword.THROW;
     //TODO nie throwowanie przy nieudanej walidacji tylko zbieranie message zeby je póżniej wyświetlić w gui
 
-    public boolean validateAgainstSchema(JSONTreeNode node, JSONString schema) throws Exception {
+    public boolean validateAgainstSchema(JSONTreeNode node, String schemaString) throws Exception {
+        JSONString schema = new JSONString(schemaString);
+        JSONTreeNode schemaRoot = generator.generateSchemaTree(schema);
+
+        return validateAgainstSchema(node, schemaRoot);
+    }
+
+    private boolean validateAgainstSchema(JSONTreeNode node, JSONTreeNode schema) throws Exception {
+
+
         //throw new RuntimeException("Not implemented");
         //pobiera keyword
         String keyword = "minimum";

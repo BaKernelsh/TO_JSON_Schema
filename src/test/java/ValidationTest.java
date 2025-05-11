@@ -22,14 +22,14 @@ public class ValidationTest {
 
     @Test
     public void IntegerMinimumValidationShouldThrowTest(){
-        Assertions.assertDoesNotThrow(() -> {
+        Assertions.assertThrows(Exception.class, () -> {
             JSONNumberTN nmbNode = new JSONNumberTN(JSONTreeNodeType.NUMBER);
             nmbNode.setName("nmb");
-            nmbNode.setValue("5");
+            nmbNode.setValue("4");
 
             JSONValidator validator = new JSONValidator();
             boolean result = validator.validateAgainstSchema(nmbNode, new JSONString("vb"));
-            Assertions.assertTrue(result);
+            Assertions.assertFalse(result);
         });
     }
 }

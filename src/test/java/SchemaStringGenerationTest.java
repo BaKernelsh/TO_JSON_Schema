@@ -26,7 +26,7 @@ public class SchemaStringGenerationTest {
             String schemaString = "";
             schemaString = generator.generateSchemaString(nullNode, schemaString, 0);
             Assertions.assertEquals("{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"null\"\n}", schemaString);
-            //System.out.println(schemaString);
+            System.out.println(schemaString);
         });
 
     }
@@ -62,7 +62,7 @@ public class SchemaStringGenerationTest {
             String schemaString = "";
             schemaString = generator.generateSchemaString(numberNode, schemaString, 0);
             Assertions.assertEquals("{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"type\": \"number\"\n}", schemaString);
-            //System.out.println(schemaString);
+            System.out.println(schemaString);
         });
     }
 
