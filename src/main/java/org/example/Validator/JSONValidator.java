@@ -2,13 +2,11 @@ package org.example.Validator;
 
 import org.example.Generator.Generator;
 import org.example.JSONString;
-import org.example.JSONTN.JSONNumberTN;
-import org.example.JSONTN.JSONObjectTN;
-import org.example.JSONTN.JSONStringTN;
-import org.example.JSONTN.JSONTreeNode;
+import org.example.JSONTN.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 
 public class JSONValidator {
     //<typ, <keyword,verifier>
@@ -36,13 +34,6 @@ public class JSONValidator {
         }
 
         return result;
-
-        //pobiera keyword
-        //String keyword = "minimum";
-        //pobiera value
-        //JSONString keywordValue = new JSONString("5");
-        //return validateNodeAgainstKeyword(node, keyword, keywordValue, this);
-
     }
 
 
@@ -77,6 +68,15 @@ public class JSONValidator {
     public JSONValidator(){
         verifiers.put("integer", new HashMap<>());
         verifiers.put("number", new HashMap<>());
+        verifiers.put("object", new HashMap<>());
+
+
+        VerifyBoolAndVerifierMethod placeholder = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
+        {
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            result.setValid(true);
+            return result;
+        });
 
         VerifyBoolAndVerifierMethod verifyType = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
         {
@@ -88,7 +88,7 @@ public class JSONValidator {
                 result.setValid(true);
             else{
                 result.setValid(false);
-                if(node.getName() == null)
+                if(node.isRoot())
                     result.setMessage("Invalid type. Should be: " + requiredType);
                 else
                     result.setMessage("Invalid type of "+node.getName()+" property. Should be: " +requiredType);
@@ -116,13 +116,73 @@ public class JSONValidator {
             return result;
         });
 
+        VerifyBoolAndVerifierMethod verifyMaximum = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
+        {
+            Double maximum = ((JSONNumberTN) assertion).getValue();
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if( ((JSONNumberTN) node).getValue() <= maximum )
+                result.setValid(true);
+            else {
+                result.setValid(false);
+                result.setMessage("integer value of "+node.getName()+" must be equal to or lower than "+maximum);
+            }
+            return result;
+        });
+
         verifiers.get("integer").put("minimum", verifyMinimum);
+        verifiers.get("integer").put("maximum", verifyMaximum);
         verifiers.get("integer").put("$schema", verify$schema);
         verifiers.get("integer").put("type", verifyType);
 
         verifiers.get("number").put("minimum", verifyMinimum);
+        verifiers.get("number").put("maximum", verifyMaximum);
         verifiers.get("number").put("$schema", verify$schema);
         verifiers.get("number").put("type", verifyType);
+
+
+        VerifyBoolAndVerifierMethod verifyProperties = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
+        {
+            ArrayList<String> nodeProperties = ((JSONObjectTN) node).getPropertyNames();
+            LinkedHashSet<JSONTreeNode> items = ((JSONArrayTN) assertion).getItems();
+            ArrayList<String> requiredProperties = new ArrayList<>();
+            items.forEach(item -> {
+                String propertyName = ((JSONStringTN) item).getValue();
+                requiredProperties.add(propertyName);
+            });
+            System.out.println("requirde properties:");
+
+            for(var rp : requiredProperties){
+                System.out.println(rp);
+            }
+
+            boolean allPresent = true;
+            String missingProperty="";
+
+            for(var requiredProperty : requiredProperties){
+                allPresent = nodeProperties.stream().anyMatch(property -> property.equals(requiredProperty));
+                if(!allPresent){
+                    missingProperty = requiredProperty;
+                    break;
+                }
+            }
+
+
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if(allPresent)
+                result.setValid(true);
+            else{
+                result.setValid(false);
+                result.setMessage("Object " +node.getName()+" should contain property: "+ missingProperty); //TODO else gdy node to root
+            }
+            return result;
+        });
+
+        verifiers.get("object").put("type", verifyType);
+        verifiers.get("object").put("required", verifyProperties);
+        verifiers.get("object").put("properties", placeholder);
+        verifiers.get("object").put("maxProperties", placeholder);
+        verifiers.get("object").put("minProperties", placeholder);
+
 
 
     }

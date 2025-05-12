@@ -46,11 +46,14 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                     newProperty.setName(propertyName);
                     newObjectNode.addProperty(newProperty);
 
-                    if(json.getNextCharOmitWhitespaces() == ','){
+                    Character commaOrClosingBracket = json.getNextCharOmitWhitespaces();
+                    if(commaOrClosingBracket == null)
+                        throw new JSONSchemaGeneratorException("Unexpected end of JSON");
+                    if(commaOrClosingBracket == ','){
                         json.getNextCharAndRemoveOmitWhitespaces();
                         continue;
                     }
-                    else if(json.getNextCharOmitWhitespaces() == '}'){
+                    else if(commaOrClosingBracket == '}'){
                        json.getNextCharAndRemoveOmitWhitespaces();
                        return newObjectNode;
                     }
