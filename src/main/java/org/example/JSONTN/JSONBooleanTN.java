@@ -2,7 +2,7 @@ package org.example.JSONTN;
 
 public class JSONBooleanTN extends JSONTreeNode{
 
-    private boolean value;
+    private Boolean value;
 
 
     public JSONBooleanTN() {
@@ -14,11 +14,11 @@ public class JSONBooleanTN extends JSONTreeNode{
     }
 
 
-    public boolean getValue() {
+    public Boolean getValue() {
         return value;
     }
 
-    public void setValue(boolean value) {
+    public void setValue(Boolean value) {
         this.value = value;
     }
 

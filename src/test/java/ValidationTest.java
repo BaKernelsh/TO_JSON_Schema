@@ -46,7 +46,7 @@ public class ValidationTest {
     }
 
     @Test
-    public void IntegerMinimumValidationShouldThrowTest(){
+    public void IntegerMinimumValidationShouldThrowTest(){ //SPRAWDZA TYPE, nie mininmum
         var e = Assertions.assertThrows(Exception.class, () -> {
             JSONNumberTN nmbNode = new JSONNumberTN(JSONTreeNodeType.NUMBER);
             nmbNode.setName("nmb");
@@ -57,8 +57,7 @@ public class ValidationTest {
                     "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
                     "  \"type\": \"number\",\n" +
                     "  \"minimum\": 1234.56,\n" +
-                    "  \"maximum\": 1234.56,\n" +
-                    "  \"multipleOf\": 1234.56\n" +
+                    "  \"maximum\": 1234.56\n" +
                     "}");
             Assertions.assertFalse(result);
         });

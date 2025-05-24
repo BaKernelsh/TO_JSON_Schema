@@ -96,6 +96,27 @@ public class JSONValidator {
             return result;
         });
 
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, String> verifyType3 = VerifyBoolAndVerifierMethod.withAssertionValueAsString();
+
+        verifyType3.setVerifierMethod((node,assertion, validatorInstance) ->
+        {
+            String nodeType = node.getTypeAsString();
+            String requiredType = assertion;
+
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if(nodeType.equals(requiredType))
+                result.setValid(true);
+            else{
+                result.setValid(false);
+                if(node.isRoot())
+                    result.setMessage("Invalid type. Should be: " + requiredType);
+                else
+                    result.setMessage("Invalid type of "+node.getName()+" property. Should be: " +requiredType);
+            }
+            return result;
+        });
+
         VerifyBoolAndVerifierMethod verify$schema = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
         {
             ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
@@ -132,7 +153,7 @@ public class JSONValidator {
         verifiers.get("integer").put("minimum", verifyMinimum);
         verifiers.get("integer").put("maximum", verifyMaximum);
         verifiers.get("integer").put("$schema", verify$schema);
-        verifiers.get("integer").put("type", verifyType);
+        verifiers.get("integer").put("type", verifyType3);
 
         verifiers.get("number").put("minimum", verifyMinimum);
         verifiers.get("number").put("maximum", verifyMaximum);
@@ -178,7 +199,7 @@ public class JSONValidator {
         });
 
 
-        VerifyBoolAndVerifierMethod verifyProperties = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
+/*        VerifyBoolAndVerifierMethod verifyProperties = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
         {
 
             if(assertion instanceof JSONObjectTN){
@@ -187,20 +208,44 @@ public class JSONValidator {
 
             ArrayList<JSONTreeNode> propertiesAssertions = ((JSONObjectTN) assertion).getProperties();
             ArrayList<JSONTreeNode> nodeProperties = ((JSONObjectTN) node).getProperties();
-            nodeProperties.
+            //nodeProperties.
 
 
             ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
             result.setValid(true);
             return result;
-        });
+        });*/
 
         verifiers.get("object").put("type", verifyType);
         verifiers.get("object").put("required", verifyRequired);
-        verifiers.get("object").put("properties", verifyProperties);
+        //verifiers.get("object").put("properties", verifyProperties);
         verifiers.get("object").put("maxProperties", placeholder);
         verifiers.get("object").put("minProperties", placeholder);
 
+
+/*        VerifyBoolAndVerifierMethod<JSONTreeNode, String> m = new VerifyBoolAndVerifierMethod<>((node, assertion, validatorInstance) -> {
+            assertion.equals()
+
+
+
+        });*/
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, JSONStringTN> met = new VerifyBoolAndVerifierMethod<>();
+        met.setVerifierMethod((node, assertion, validatorInstance) -> {
+            String nodeType = node.getTypeAsString();
+            String requiredType = assertion.getValue();
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if(nodeType.equals(requiredType))
+                result.setValid(true);
+            else{
+                result.setValid(false);
+                if(node.isRoot())
+                    result.setMessage("Invalid type. Should be: " + requiredType);
+                else
+                    result.setMessage("Invalid type of "+node.getName()+" property. Should be: " +requiredType);
+            }
+            return result;
+        });
 
 
     }
