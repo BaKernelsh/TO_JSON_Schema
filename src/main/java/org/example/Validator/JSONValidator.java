@@ -140,7 +140,7 @@ public class JSONValidator {
         verifiers.get("number").put("type", verifyType);
 
 
-        VerifyBoolAndVerifierMethod verifyProperties = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
+        VerifyBoolAndVerifierMethod verifyRequired = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
         {
             ArrayList<String> nodeProperties = ((JSONObjectTN) node).getPropertyNames();
             LinkedHashSet<JSONTreeNode> items = ((JSONArrayTN) assertion).getItems();
@@ -177,9 +177,27 @@ public class JSONValidator {
             return result;
         });
 
+
+        VerifyBoolAndVerifierMethod verifyProperties = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
+        {
+
+            if(assertion instanceof JSONObjectTN){
+                System.out.println("TAK");
+            }
+
+            ArrayList<JSONTreeNode> propertiesAssertions = ((JSONObjectTN) assertion).getProperties();
+            ArrayList<JSONTreeNode> nodeProperties = ((JSONObjectTN) node).getProperties();
+            nodeProperties.
+
+
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            result.setValid(true);
+            return result;
+        });
+
         verifiers.get("object").put("type", verifyType);
-        verifiers.get("object").put("required", verifyProperties);
-        verifiers.get("object").put("properties", placeholder);
+        verifiers.get("object").put("required", verifyRequired);
+        verifiers.get("object").put("properties", verifyProperties);
         verifiers.get("object").put("maxProperties", placeholder);
         verifiers.get("object").put("minProperties", placeholder);
 

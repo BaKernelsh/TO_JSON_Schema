@@ -98,7 +98,7 @@ public class ValidationTest {
 
 
     @Test
-    public void ObjectPropertiesValidationTest(){
+    public void ObjectRequiredValidationTest(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
             JSONTreeNode root = generator.generateSchemaTree(json);
