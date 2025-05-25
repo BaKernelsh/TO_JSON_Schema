@@ -101,7 +101,125 @@ public class ValidationTest {
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
             JSONTreeNode root = generator.generateSchemaTree(json);
-            String schema = generator.generateSchemaString(root, "", 0);
+
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"object\",\n" +
+                    "  \"required\": [\"k\", \"b\"],\n" +
+                    "  \"maxProperties\": 2,\n" +
+                    "  \"minProperties\": 2\n" +
+                    "}";
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            validator.setUnknownKeywordBehavior(OnUnknownKeyword.KEYWORD_VALIDATION_UNSUCCESFUL_CONTINUE_VALIDATION);
+            boolean result = validator.validateAgainstSchema(root, schema);
+            Assertions.assertTrue(result);
+        });
+    }
+
+    @Test
+    public void ObjectPropertiesValidationTest(){
+        Assertions.assertDoesNotThrow(() -> {
+            JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
+            JSONTreeNode root = generator.generateSchemaTree(json);
+
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"object\",\n" +
+                    "  \"properties\": {\n" +
+                    "    \"k\": {\n" +
+                    "      \"type\": \"number\",\n" +
+                    "      \"minimum\": 1234.56,\n" +
+                    "      \"maximum\": 1234.56,\n" +
+                    "    },\n" +
+                    "    \"b\": {\n" +
+                    "      \"type\": \"integer\",\n" +
+                    "      \"maximum\": 3,\n" +
+                    "      \"minimum\": 3\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"required\": [\"k\", \"b\"],\n" +
+                    "  \"maxProperties\": 2,\n" +
+                    "  \"minProperties\": 2\n" +
+                    "}";
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            boolean result = validator.validateAgainstSchema(root, schema);
+            Assertions.assertTrue(result);
+        });
+    }
+
+    @Test
+    public void ObjectPropertiesValidationShouldThrowUnknownValidationKeywordTest(){
+        var e = Assertions.assertThrows(Exception.class, () -> {
+            JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
+            JSONTreeNode root = generator.generateSchemaTree(json);
+
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"object\",\n" +
+                    "  \"properties\": {\n" +
+                    "    \"k\": {\n" +
+                    "      \"type\": \"number\",\n" +
+                    "      \"minimum\": 1234.56,\n" +
+                    "      \"maximum\": 1234.56,\n" +
+                    "      \"multipleOf\": 1234.56\n" +
+                    "    },\n" +
+                    "    \"b\": {\n" +
+                    "      \"type\": \"integer\",\n" +
+                    "      \"multipleOf\": 3,\n" +
+                    "      \"maximum\": 3,\n" +
+                    "      \"exclusiveMaximum\": 4,\n" +
+                    "      \"minimum\": 3,\n" +
+                    "      \"exclusiveMinimum\": 2\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"required\": [\"k\", \"b\"],\n" +
+                    "  \"maxProperties\": 2,\n" +
+                    "  \"minProperties\": 2\n" +
+                    "}";
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            validator.validateAgainstSchema(root, schema);
+
+        });
+
+        Assertions.assertEquals("Validation failed for keyword: properties Unknown validation keyword: multipleOf", e.getMessage());
+        System.out.println(e.getMessage());
+    }
+
+    @Test
+    public void ObjectPropertiesValidationShouldContinueAndReturnFalseTest(){
+        Assertions.assertDoesNotThrow(() -> {
+            JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
+            JSONTreeNode root = generator.generateSchemaTree(json);
+
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"object\",\n" +
+                    "  \"properties\": {\n" +
+                    "    \"k\": {\n" +
+                    "      \"type\": \"number\",\n" +
+                    "      \"minimum\": 1234.56,\n" +
+                    "      \"maximum\": 1234.56,\n" +
+                    "      \"multipleOf\": 1234.56\n" +
+                    "    },\n" +
+                    "    \"b\": {\n" +
+                    "      \"type\": \"integer\",\n" +
+                    "      \"multipleOf\": 3,\n" +
+                    "      \"maximum\": 3,\n" +
+                    "      \"exclusiveMaximum\": 4,\n" +
+                    "      \"minimum\": 3,\n" +
+                    "      \"exclusiveMinimum\": 2\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"required\": [\"k\", \"b\"],\n" +
+                    "  \"maxProperties\": 2,\n" +
+                    "  \"minProperties\": 2\n" +
+                    "}";
             System.out.println(schema);
 
             JSONValidator validator = new JSONValidator();

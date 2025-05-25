@@ -4,6 +4,7 @@ public class ValidationResultAndErrorMessage {
 
     private boolean valid = false;
     private String message = "";
+    private boolean ignoreInvalidity = false;
 
 
     public ValidationResultAndErrorMessage(boolean valid, String message) {
@@ -38,4 +39,11 @@ public class ValidationResultAndErrorMessage {
         return new ValidationResultAndErrorMessage(true);
     }
 
+    public boolean ignoreInvalidity() {
+        return ignoreInvalidity;
+    }
+
+    public void setIgnoreInvalidity(boolean ignoreInvalidity) {
+        this.ignoreInvalidity = ignoreInvalidity;
+    }
 }
