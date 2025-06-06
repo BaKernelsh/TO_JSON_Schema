@@ -88,6 +88,8 @@ public class VerifyBoolAndVerifierMethod<NodeObjectType extends JSONTreeNode, As
 
     }
 
+    //TODO forEachObjectProperty()
+
 
 
     public static VerifyBoolAndVerifierMethod<JSONTreeNode, String> withAssertionValueAsString(){
@@ -115,7 +117,6 @@ public class VerifyBoolAndVerifierMethod<NodeObjectType extends JSONTreeNode, As
 
 
     public static VerifyBoolAndVerifierMethod<JSONTreeNode, String> withAssertionValueAsArrayOfString(){
-        VerifyBoolAndVerifierMethod<JSONTreeNode, String> newInstance = withAssertionValueAsString();
         return withAssertionValueAsString();
     }
 
@@ -150,7 +151,4 @@ public class VerifyBoolAndVerifierMethod<NodeObjectType extends JSONTreeNode, As
         this.verify = verify;
     }
 
-    private void setAsArray(){
-        asArray = true;
-    }
 }

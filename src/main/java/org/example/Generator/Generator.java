@@ -13,6 +13,12 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
     private SchemaStringElements schemaStringElements = new SchemaStringElements();
 
 
+    public String generateSchema(String json) throws JSONSchemaGeneratorException {
+        JSONTreeNode jsonRootNode = generateSchemaTree(new JSONString(json));
+        return generateSchemaString(jsonRootNode, "", 0);
+    }
+
+
     public JSONTreeNode generateSchemaTree(JSONString json) throws JSONSchemaGeneratorException {
         Character nextChar = json.getNextCharOmitWhitespaces();
 
@@ -133,7 +139,7 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                    && current.getType() != JSONTreeNodeType.ARRAY){
                     schemaString = schemaString.concat(schemaStringElements.primitivePropertyNameAndType(nestLevel, current));
                     // nestLevel+1 zeby dla nestLevel==0 dobrze generowalo wciecie
-                    schemaString = assertionConfig.addAssertionsToSchemaString(current, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel+1));
+                    schemaString = assertionConfig.addAssertionsToSchemaString(current, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel+1, current));
                     schemaString = schemaString.concat(schemaStringElements.primitivePropertyClosing(nestLevel));
                 }
                 if(current.getType() == JSONTreeNodeType.OBJECT || current.getType() == JSONTreeNodeType.ARRAY){
@@ -150,7 +156,7 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
 
 
             schemaString = schemaString.concat(schemaStringElements.propertiesClosing(nestLevel));
-            schemaString = assertionConfig.addAssertionsToSchemaString(treeNode, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel));
+            schemaString = assertionConfig.addAssertionsToSchemaString(treeNode, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel, treeNode));
             schemaString = schemaString.concat(schemaStringElements.objectClosing(nestLevel));
             return schemaString;
         }
@@ -176,7 +182,7 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                 if(current.getType() != JSONTreeNodeType.OBJECT
                    && current.getType() != JSONTreeNodeType.ARRAY){
                     schemaString = schemaString.concat(schemaStringElements.primitiveArrayItem(nestLevel, current));
-                    schemaString = assertionConfig.addAssertionsToSchemaString(current, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel+1));
+                    schemaString = assertionConfig.addAssertionsToSchemaString(current, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel+1, current));
                     schemaString = schemaString.concat(schemaStringElements.primitiveArrayItemClosing(nestLevel));
                 }
 

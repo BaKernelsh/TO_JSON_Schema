@@ -22,6 +22,8 @@ public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszy
 
         var assertionsForNodeType = assertions.get(node.getTypeAsString());
 
+        //indentation = shortenIndentationForObjectNode(node, indentation);
+
         for(var assertionName : assertionsForNodeType.keySet()){
             var gen = assertionsForNodeType.get(assertionName);
             if(gen != null && gen.includeInSchemaString())
@@ -115,5 +117,11 @@ public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszy
         }
     }
 
+    private String shortenIndentationForObjectNode(JSONTreeNode node, String indentation){
+        if(node.getType() == JSONTreeNodeType.OBJECT)
+            return indentation.substring(0,indentation.length()-2);
+
+        return indentation;
+    }
 
 }

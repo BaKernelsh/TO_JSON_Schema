@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class SchemaStringGenerationTest {
 
     static Generator generator;
@@ -324,5 +327,24 @@ public class SchemaStringGenerationTest {
         });
 
     }
+
+    @Test
+    public void generateSchemaTest(){
+        Assertions.assertDoesNotThrow(() -> {
+
+            String json = "{\"prop1\": {\"str\": \"Jakis  Napis123.67\",},\"prop2\": {\"obj\":{\"o\": {\"zx\": {}, \"n\":5}}},}";
+            Generator defaultGenerator = new Generator();
+            long st = 0;
+            long et = 0;
+            st= System.currentTimeMillis();
+            String schemaString = defaultGenerator.generateSchema(json);
+            et = System.currentTimeMillis();
+            long t = et-st;
+            System.out.println(t);
+            System.out.println(schemaString);
+        });
+
+    }
+
 
 }
