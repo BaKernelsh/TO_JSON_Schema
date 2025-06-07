@@ -49,7 +49,7 @@ public class SchemaStringElements {
         }
     }
 
-    public String typeKeywordAndColon(int nestLevel){
+    public String openingAndTypeKeywordAndColon(int nestLevel){
         if(compact)
             return "{\"type\":\"";
         else {
@@ -208,7 +208,7 @@ public class SchemaStringElements {
         if(compact)
             return "array\",\"items\":";
         else {
-            if (!subarray) {
+/*            if (!subarray) {
                 String indentation;
                 if (nestLevel == 0)
                     indentation = indentation(nestLevel);
@@ -218,8 +218,17 @@ public class SchemaStringElements {
             }
             else{
                 return "array\",\n" + indentation(nestLevel+2) + "\"items\": ";
-            }
+            }*/
+            String indent = assertionsIndentation(nestLevel);
+            return "array\",\n" + indent + "\"items\": ";
         }
+    }
+
+    public String indentationBeforeObjectItemOpening(int nestLevel){
+        if(compact)
+            return "";
+        else
+            return propertyNameIndentation(nestLevel);
     }
 
     public String emptyArrayItemList(){
@@ -230,11 +239,11 @@ public class SchemaStringElements {
         if(compact)
             return "}";
         else{
-            String indentation;
-            if(nestLevel==0) //ten array to root
+            String indentation = new String(new char[4*nestLevel]).replace("\0", " ");
+/*            if(nestLevel==0) //ten array to root
                 return "}";
             else
-                indentation = indentation(nestLevel);
+                indentation = indentation(nestLevel);*/
             return indentation+"}";
         }
     }
@@ -243,8 +252,12 @@ public class SchemaStringElements {
         if(compact)
             return "{\"type\":\"" + current.getTypeAsString() + "\"}";
         else{
-            String indentation;
-            if(nestLevel==0) { //ten array to root
+            String openingIndent = propertyNameIndentation(nestLevel);
+            String assertionsIndent = openingIndent + "  ";
+
+            return openingIndent + "{\n"+assertionsIndent+"\"type\": \"" + current.getTypeAsString() + "\"";
+
+/*            if(nestLevel==0) { //ten array to root
                 indentation = indentation(nestLevel + 1);
                 //return indentation + "{\n"+indentation(nestLevel+2)+"\"type\": \"" + current.getTypeAsString() + "\"\n"+indentation+"}";
                 return indentation + "{\n"+indentation(nestLevel+2)+"\"type\": \"" + current.getTypeAsString() + "\"";
@@ -253,7 +266,7 @@ public class SchemaStringElements {
                 indentation = indentation(nestLevel + 3);
                 //return indentation + "{\n"+indentation(nestLevel+4)+"\"type\": \"" + current.getTypeAsString() + "\"\n"+indentation+"}";
                 return indentation + "{\n"+indentation(nestLevel+4)+"\"type\": \"" + current.getTypeAsString() + "\"";
-            }
+            }*/
         }
     }
 
@@ -261,11 +274,11 @@ public class SchemaStringElements {
         if(compact)
             return "}";
         else{
-            String indentation;
-            if(nestLevel==0) //ten array to root
+            String indentation = propertyNameIndentation(nestLevel);
+/*            if(nestLevel==0) //ten array to root
                 indentation = indentation(nestLevel + 1);
             else
-                indentation = indentation(nestLevel + 3);
+                indentation = indentation(nestLevel + 3);*/
             return "\n"+indentation+"}";
 
         }
@@ -285,12 +298,12 @@ public class SchemaStringElements {
         if(compact)
             return "]";
         else{
-            String indentation;
-            if(nestLevel==0){ //ten array to root
+            String indentation = assertionsIndentation(nestLevel);
+/*            if(nestLevel==0){ //ten array to root
                 indentation = indentation(nestLevel);
             }
             else
-                indentation = indentation(nestLevel+2);
+                indentation = indentation(nestLevel+2);*/
             return indentation+"]\n";
         }
     }

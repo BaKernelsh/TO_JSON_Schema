@@ -346,5 +346,41 @@ public class SchemaStringGenerationTest {
 
     }
 
+    @Test
+    public void generateSchemaWithArraysTest(){
+        Assertions.assertDoesNotThrow(() -> {
+
+            String json = "{\"prop1\": {\"str\": \"Jakis  Napis123.67\",},\"prop2\": {\"obj\": [{\"o\": {}}, \"qwe\", [5]]},}";
+            Generator defaultGenerator = new Generator();
+            long st = 0;
+            long et = 0;
+            st= System.currentTimeMillis();
+            String schemaString = defaultGenerator.generateSchema(json);
+            et = System.currentTimeMillis();
+            long t = et-st;
+            //System.out.println(t);
+            System.out.println(schemaString);
+        });
+
+    }
+
+    @Test
+    public void generateSchemaWithNestedArraysTest(){
+        Assertions.assertDoesNotThrow(() -> {
+
+            String json = "[{\"arr\":[[\"srt\", {\"p\": 5}, []]]}]";
+            Generator defaultGenerator = new Generator();
+            long st = 0;
+            long et = 0;
+            st= System.currentTimeMillis();
+            String schemaString = defaultGenerator.generateSchema(json);
+            et = System.currentTimeMillis();
+            long t = et-st;
+            //System.out.println(t);
+            System.out.println(schemaString);
+        });
+
+    }
+
 
 }

@@ -120,7 +120,7 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
         if(treeNode.isRoot()) //root jest obiektem albo tablica
             schemaString = schemaString.concat(schemaStringElements.objectOrArrayAsRoot(nestLevel));
         else //to nie root
-            schemaString = schemaString.concat(schemaStringElements.typeKeywordAndColon(nestLevel));
+            schemaString = schemaString.concat(schemaStringElements.openingAndTypeKeywordAndColon(nestLevel));
 
 
         if(treeNode.getType() == JSONTreeNodeType.OBJECT){
@@ -188,11 +188,13 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
 
                 if(current.getType() == JSONTreeNodeType.OBJECT || current.getType() == JSONTreeNodeType.ARRAY){
                     if(current.getType() == JSONTreeNodeType.ARRAY){
-                        schemaString = schemaString.concat(schemaStringElements.indentationForSubarray(nestLevel));
+                        schemaString = schemaString.concat(schemaStringElements.indentationBeforeObjectItemOpening(nestLevel));
                         schemaString = generateSchemaString(current, schemaString, nestLevel+1,true);
                     }
-                    else
+                    else{
+                        schemaString = schemaString.concat(schemaStringElements.indentationBeforeObjectItemOpening(nestLevel));
                         schemaString = generateSchemaString(current, schemaString, nestLevel+1,false);
+                    }
                 }
 
 
