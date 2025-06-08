@@ -379,5 +379,18 @@ public class SchemaStringGenerationTest {
 
     }
 
+    @Test
+    public void strTest(){
+        Assertions.assertDoesNotThrow(() -> {
+        String json = "\"qwe\"";
+        Generator defaultGenerator = new Generator();
+
+        String schemaString = defaultGenerator.generateSchema(json);
+
+        System.out.println(schemaString);
+        });
+    }
+
+
 
 }

@@ -58,7 +58,7 @@ public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszy
 
         assertions.get("string").put("maxLength", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONStringTN) node).getValue().length()) ));
         assertions.get("string").put("minLength", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONStringTN) node).getValue().length()) ));
-        assertions.get("string").put("pattern", new AssertionBoolAndAssertionStringGenerator(node -> Pattern.quote(((JSONStringTN) node).getValue()) ));
+        assertions.get("string").put("pattern", new AssertionBoolAndAssertionStringGenerator(node -> "\""+Pattern.quote(((JSONStringTN) node).getValue())+"\"" ));
 
         assertions.get("array").put("maxItems", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONArrayTN) node).getItems().size()) ));
         assertions.get("array").put("minItems", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONArrayTN) node).getItems().size()) ));

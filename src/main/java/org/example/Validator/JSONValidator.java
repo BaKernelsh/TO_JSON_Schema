@@ -78,6 +78,9 @@ public class JSONValidator {
         verifiers.put("integer", new HashMap<>());
         verifiers.put("number", new HashMap<>());
         verifiers.put("object", new HashMap<>());
+        verifiers.put("null", new HashMap<>());
+        verifiers.put("array", new HashMap<>());
+        verifiers.put("string", new HashMap<>());
 
 
         VerifyBoolAndVerifierMethod placeholder = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
@@ -299,7 +302,8 @@ public class JSONValidator {
         verifiers.get("object").put("maxProperties", placeholder);
         verifiers.get("object").put("minProperties", placeholder);
 
-
+        verifiers.get("null").put("$schema", verify$schema);
+        verifiers.get("null").put("type", verifyType);
 
 
 
