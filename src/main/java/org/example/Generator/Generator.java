@@ -3,7 +3,6 @@ package org.example.Generator;
 import org.example.Exception.JSONSchemaGeneratorException;
 import org.example.JSONString;
 import org.example.JSONTN.*;
-import org.example.JSONTN.Creators.NodeCreator;
 
 import java.util.ArrayList;
 
@@ -14,12 +13,12 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
 
 
     public String generateSchema(String json) throws JSONSchemaGeneratorException {
-        JSONTreeNode jsonRootNode = generateSchemaTree(new JSONString(json));
+        JSONTreeNode jsonRootNode = generateJsonTree(new JSONString(json));
         return generateSchemaString(jsonRootNode, "", 0);
     }
 
 
-    public JSONTreeNode generateSchemaTree(JSONString json) throws JSONSchemaGeneratorException {
+    public JSONTreeNode generateJsonTree(JSONString json) throws JSONSchemaGeneratorException {
         Character nextChar = json.getNextCharOmitWhitespaces();
 
         if(nextChar == null)
@@ -46,7 +45,7 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                     if(json.getNextCharAndRemoveOmitWhitespaces() != ':')
                         throw new JSONSchemaGeneratorException("Unexpected character");
 
-                    JSONTreeNode newProperty = generateSchemaTree(json);
+                    JSONTreeNode newProperty = generateJsonTree(json);
                     if(newProperty == null)
                         throw new JSONSchemaGeneratorException("Unexpected end of JSON");
                     newProperty.setName(propertyName);
@@ -105,16 +104,12 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
 
     }
 
-    public String generateSchemaString(JSONTreeNode treeNode, String schemaString, int nestLevel) throws JSONSchemaGeneratorException {
-        return generateSchemaString(treeNode, schemaString, nestLevel, false);
-    }
 
-    public String generateSchemaString(JSONTreeNode treeNode, String schemaString, int nestLevel, boolean subarray) throws JSONSchemaGeneratorException {
+    public String generateSchemaString(JSONTreeNode treeNode, String schemaString, int nestLevel) throws JSONSchemaGeneratorException {
         if(treeNode.isRoot() //generator drzewa nie ustawia nazwy dla roota
            && treeNode.getType() != JSONTreeNodeType.OBJECT  //prymitywny typ
            && treeNode.getType() != JSONTreeNodeType.ARRAY) {
             return schemaStringElements.primitiveTypeAsRoot(treeNode, assertionConfig);
-            //schemaString = assertionConfig.addAssertionsToSchemaString(treeNode, schemaString, schemaStringElements.indentationBeforeAssertions(nestLevel+1));
         }
 
         if(treeNode.isRoot()) //root jest obiektem albo tablica
@@ -144,7 +139,7 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                 }
                 if(current.getType() == JSONTreeNodeType.OBJECT || current.getType() == JSONTreeNodeType.ARRAY){
                     schemaString = schemaString.concat(schemaStringElements.objectOrArrayPropertyName(nestLevel, current));
-                    schemaString = generateSchemaString(current, schemaString, nestLevel+1, false);
+                    schemaString = generateSchemaString(current, schemaString, nestLevel+1);
                 }
 
 
@@ -163,7 +158,7 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
 
 
         if(treeNode.getType() == JSONTreeNodeType.ARRAY){
-            schemaString = schemaString.concat(schemaStringElements.arrayTypeAndItemsKeyword(nestLevel, subarray));
+            schemaString = schemaString.concat(schemaStringElements.arrayTypeAndItemsKeyword(nestLevel));
 
             JSONTreeNode[] items = ((JSONArrayTN) treeNode).getItems().toArray(new JSONTreeNode[0]);
 
@@ -189,11 +184,11 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                 if(current.getType() == JSONTreeNodeType.OBJECT || current.getType() == JSONTreeNodeType.ARRAY){
                     if(current.getType() == JSONTreeNodeType.ARRAY){
                         schemaString = schemaString.concat(schemaStringElements.indentationBeforeObjectItemOpening(nestLevel));
-                        schemaString = generateSchemaString(current, schemaString, nestLevel+1,true);
+                        schemaString = generateSchemaString(current, schemaString, nestLevel+1);
                     }
                     else{
                         schemaString = schemaString.concat(schemaStringElements.indentationBeforeObjectItemOpening(nestLevel));
-                        schemaString = generateSchemaString(current, schemaString, nestLevel+1,false);
+                        schemaString = generateSchemaString(current, schemaString, nestLevel+1);
                     }
                 }
 
@@ -206,7 +201,7 @@ public class Generator { //TODO builder z allConfigurationTrue, allConfiguration
                 i++;
             }
 
-            //schemaString = schemaString.concat("]\n}");
+
             schemaString = schemaString.concat(schemaStringElements.itemListClosing(nestLevel));
             schemaString = schemaString.concat(schemaStringElements.arrayClosing(nestLevel));
 

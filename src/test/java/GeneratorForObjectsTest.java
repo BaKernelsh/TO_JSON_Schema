@@ -23,7 +23,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromEmptyObject(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
             Assertions.assertNull(result.getName());
@@ -35,7 +35,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithMissingPropertyQuotes(){
         var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
             JSONString json = new JSONString("{\"}");
-            generator.generateSchemaTree(json);
+            generator.generateJsonTree(json);
         });
         Assertions.assertEquals("Unterminated string", e.getMessage());
     }
@@ -44,7 +44,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithMissingColonAfterPropName(){
         var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
             JSONString json = new JSONString("{\"prop\"  costam ");
-            generator.generateSchemaTree(json);
+            generator.generateJsonTree(json);
         });
         Assertions.assertEquals("Unexpected character", e.getMessage());
     }
@@ -53,7 +53,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectShouldThrowUnexpectedEndOfJson(){
         var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
             JSONString json = new JSONString("{\"prop\":   ");
-            generator.generateSchemaTree(json);
+            generator.generateJsonTree(json);
         });
         Assertions.assertEquals("Unexpected end of JSON", e.getMessage());
     }
@@ -62,7 +62,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithInvalidValueAfterColon(){
         var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
             JSONString json = new JSONString("{\"prop\":   wqerrty");
-            generator.generateSchemaTree(json);
+            generator.generateJsonTree(json);
         });
         Assertions.assertEquals("Unexpected character: w", e.getMessage());
     }
@@ -72,7 +72,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithNull(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": null}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -91,7 +91,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithMultipleNulls(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": null,\"prop2\": null, \"prop3\": null}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -123,7 +123,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithTrue(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": true}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -143,7 +143,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithFalse(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": false}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -163,7 +163,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithMultipleBoolean(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": false, \"prop2\": true, \"prop3\": false, \"prop4\": true}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -203,7 +203,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithString(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": \"Jakis  Napis\",}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -222,7 +222,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithInteger(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop\": 123}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -241,7 +241,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithNegativeInteger(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop\": -123}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -260,7 +260,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithDouble(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop\": 123.45678909}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -279,7 +279,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithNegativeDouble(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop\": -123.45678909}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -298,7 +298,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithObject(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop\": {}}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -317,7 +317,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithMultipleObjects(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": {},\"prop2\": {},}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -343,7 +343,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithMultipleNotEmptyAndNestedObjects(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": {\"str\": \"Jakis  Napis123.67\",},\"prop2\": {\"obj\":{}},}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -380,7 +380,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithArray(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": [\"string\"]}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());
@@ -399,7 +399,7 @@ public class GeneratorForObjectsTest {
     public void generateTreeFromObjectWithNestedArrays(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"prop1\": [[\"string\"], null]}");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             //sprawdzenie roota
             Assertions.assertInstanceOf(JSONObjectTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.OBJECT, result.getType());

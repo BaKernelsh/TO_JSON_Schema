@@ -7,7 +7,6 @@ import org.example.JSONTN.JSONTreeNodeType;
 import org.example.Validator.JSONValidator;
 import org.example.Validator.OnUnknownKeyword;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +29,7 @@ public class ValidationTest {
             AssertionConfiguration assertionConfiguration = new AssertionConfiguration();
             assertionConfiguration.setAllUnused();
             generator.setAssertionConfiguration(assertionConfiguration);
-            JSONTreeNode root = generator.generateSchemaTree(json);
+            JSONTreeNode root = generator.generateJsonTree(json);
             String schema = generator.generateSchemaString(root, "", 0);
             System.out.println(schema);
 
@@ -69,7 +68,7 @@ public class ValidationTest {
     public void IntegerMinimumValidationShouldThrowUnknownValidationKeywordTest(){
         var e = Assertions.assertThrows(Exception.class, () -> {
             JSONString json = new JSONString("1234.56");
-            JSONTreeNode root = generator.generateSchemaTree(json);
+            JSONTreeNode root = generator.generateJsonTree(json);
             String schema = generator.generateSchemaString(root, "", 0);
             System.out.println(schema);
 
@@ -84,7 +83,7 @@ public class ValidationTest {
     public void IntegerMinimumValidationWithUnknownValidationKeywordShouldReturnFalseTest(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("1234.56");
-            JSONTreeNode root = generator.generateSchemaTree(json);
+            JSONTreeNode root = generator.generateJsonTree(json);
             String schema = generator.generateSchemaString(root, "", 0);
             System.out.println(schema);
 
@@ -100,7 +99,7 @@ public class ValidationTest {
     public void ObjectRequiredValidationTest(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
-            JSONTreeNode root = generator.generateSchemaTree(json);
+            JSONTreeNode root = generator.generateJsonTree(json);
 
             String schema = "{\n" +
                     "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
@@ -122,7 +121,7 @@ public class ValidationTest {
     public void ObjectPropertiesValidationTest(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
-            JSONTreeNode root = generator.generateSchemaTree(json);
+            JSONTreeNode root = generator.generateJsonTree(json);
 
             String schema = "{\n" +
                     "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
@@ -155,7 +154,7 @@ public class ValidationTest {
     public void ObjectPropertiesValidationShouldThrowUnknownValidationKeywordTest(){
         var e = Assertions.assertThrows(Exception.class, () -> {
             JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
-            JSONTreeNode root = generator.generateSchemaTree(json);
+            JSONTreeNode root = generator.generateJsonTree(json);
 
             String schema = "{\n" +
                     "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
@@ -195,7 +194,7 @@ public class ValidationTest {
     public void ObjectPropertiesValidationShouldContinueAndReturnFalseTest(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
-            JSONTreeNode root = generator.generateSchemaTree(json);
+            JSONTreeNode root = generator.generateJsonTree(json);
 
             String schema = "{\n" +
                     "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +

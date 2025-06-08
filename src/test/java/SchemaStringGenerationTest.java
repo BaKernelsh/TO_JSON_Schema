@@ -7,9 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 public class SchemaStringGenerationTest {
 
     static Generator generator;
@@ -300,7 +297,7 @@ public class SchemaStringGenerationTest {
     public void generateArraySchemaFromString(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[{\"k\":23},{\"k\":[]}]");
-            JSONTreeNode tree = generator.generateSchemaTree(json);
+            JSONTreeNode tree = generator.generateJsonTree(json);
 
             String schemaString = "";
             schemaString = generator.generateSchemaString(tree, schemaString, 0);

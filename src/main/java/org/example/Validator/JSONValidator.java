@@ -5,7 +5,6 @@ import org.example.JSONString;
 import org.example.JSONTN.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class JSONValidator {
     //<typ, <keyword,verifier>
@@ -14,9 +13,14 @@ public class JSONValidator {
     private OnUnknownKeyword onUnknownKeyword = OnUnknownKeyword.THROW;
     //TODO nie throwowanie przy nieudanej walidacji tylko zbieranie message zeby je póżniej wyświetlić w gui
 
+    public boolean validateAgainstSchema(String json, String schemaString) throws  Exception {
+        JSONTreeNode jsonRoot = generator.generateJsonTree(new JSONString(json));
+        return validateAgainstSchema(jsonRoot, schemaString);
+    }
+
     public boolean validateAgainstSchema(JSONTreeNode node, String schemaString) throws Exception {
         JSONString schema = new JSONString(schemaString);
-        JSONObjectTN schemaRoot = (JSONObjectTN) generator.generateSchemaTree(schema);
+        JSONObjectTN schemaRoot = (JSONObjectTN) generator.generateJsonTree(schema);
 
         return validateAgainstSchema(node, schemaRoot);
     }
@@ -37,7 +41,7 @@ public class JSONValidator {
     }
 
 
-    public boolean validateNodeAgainstAssertion(JSONTreeNode node, JSONTreeNode assertion, JSONValidator validatorInstance) throws Exception {
+    private boolean validateNodeAgainstAssertion(JSONTreeNode node, JSONTreeNode assertion, JSONValidator validatorInstance) throws Exception {
         String keyword = assertion.getName();
 
         VerifyBoolAndVerifierMethod verifier = verifiers.get(node.getTypeAsString()).get(keyword);
@@ -60,7 +64,7 @@ public class JSONValidator {
 
 
 
-    public boolean handleUnknownKeyword(String keyword) throws RuntimeException{
+    private boolean handleUnknownKeyword(String keyword) throws RuntimeException{
         if(onUnknownKeyword == OnUnknownKeyword.KEYWORD_VALIDATION_UNSUCCESFUL_CONTINUE_VALIDATION)
             return false;
         if(onUnknownKeyword == OnUnknownKeyword.KEYWORD_VALIDATION_SUCCESFUL_CONTINUE_VALIDATION)

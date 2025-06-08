@@ -1,4 +1,4 @@
-package org.example.JSONTN.Creators;
+package org.example.Generator;
 
 import org.example.Exception.JSONSchemaGeneratorException;
 import org.example.Generator.Generator;

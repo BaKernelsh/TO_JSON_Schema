@@ -23,7 +23,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromEmptyArray(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -35,7 +35,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithArrayItem(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[[]]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -53,7 +53,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithMultipleArrayItems(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[[ [] ],[ \n]]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -75,7 +75,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithStringItem(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[\"jakis Napis\"]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -92,7 +92,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithMultipleStringItems(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[\"jakis Napis\", \"drugi.\nnaPis\"]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -114,7 +114,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithNullItem(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[null]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -130,7 +130,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithMultipleNullItems(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[null, null]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -150,7 +150,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithTrueItem(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[true]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -167,7 +167,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithFalseItem(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[false]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -184,7 +184,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithMultipleBoolItem(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[false, true]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -207,7 +207,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithIntegerItem(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[123456]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -225,7 +225,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithIntegerWithLeadingZerosItem(){
         var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
             JSONString json = new JSONString("[000123]");
-            generator.generateSchemaTree(json);
+            generator.generateJsonTree(json);
         });
         Assertions.assertEquals("Leading zeros are not allowed", e.getMessage());
     }
@@ -234,7 +234,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithMultipleIntegerItems(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[123456, 98735]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -258,7 +258,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithEmptyObjectItem(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[{}]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -278,7 +278,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithObjectItem(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("[{\"prop1\": \"string\", \"prop2\": null}]");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.ARRAY, result.getType());
@@ -307,7 +307,7 @@ public class GeneratorForArraysTest {
     public void generateTreeFromArrayWithInvalidElement(){
         var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
             JSONString json = new JSONString("[invalid]");
-            generator.generateSchemaTree(json);
+            generator.generateJsonTree(json);
         });
         Assertions.assertEquals("Unexpected character: i", e.getMessage());
     }

@@ -26,12 +26,12 @@ public class SchemaTreeGenerationTest {
     public void generateSchemaTree(){
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("1234.56");
-            JSONTreeNode root = generator.generateSchemaTree(json);
+            JSONTreeNode root = generator.generateJsonTree(json);
             String schema = generator.generateSchemaString(root, "", 0);
             System.out.println(schema);
             JSONString schemaString = new JSONString(schema);
 
-            JSONTreeNode schemaRoot = generator.generateSchemaTree(schemaString);
+            JSONTreeNode schemaRoot = generator.generateJsonTree(schemaString);
             Assertions.assertEquals("$schema", ((JSONObjectTN) schemaRoot).getProperties().getFirst().getName() );
 
             Assertions.assertInstanceOf(JSONStringTN.class, ((JSONObjectTN) schemaRoot).getProperties().get(1));

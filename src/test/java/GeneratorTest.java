@@ -24,7 +24,7 @@ public class GeneratorTest {
 
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("456");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             Assertions.assertInstanceOf(JSONNumberTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.NUMBER, result.getType());
             Assertions.assertEquals(Double.valueOf("456"), ((JSONNumberTN) result).getValue());
@@ -37,7 +37,7 @@ public class GeneratorTest {
 
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("null");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             Assertions.assertInstanceOf(JSONNullTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.NULL, result.getType());
         });
@@ -48,7 +48,7 @@ public class GeneratorTest {
 
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("true");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             Assertions.assertInstanceOf(JSONBooleanTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.BOOLEAN, result.getType());
             Assertions.assertTrue(((JSONBooleanTN) result).getValue());
@@ -60,7 +60,7 @@ public class GeneratorTest {
 
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("false");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             Assertions.assertInstanceOf(JSONBooleanTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.BOOLEAN, result.getType());
             Assertions.assertFalse(((JSONBooleanTN) result).getValue());
@@ -72,7 +72,7 @@ public class GeneratorTest {
 
         Assertions.assertDoesNotThrow(() -> {
             JSONString json = new JSONString("\"some5tring', {}[]:\"");
-            JSONTreeNode result = generator.generateSchemaTree(json);
+            JSONTreeNode result = generator.generateJsonTree(json);
             Assertions.assertInstanceOf(JSONStringTN.class, result);
             Assertions.assertEquals(JSONTreeNodeType.STRING, result.getType());
             Assertions.assertEquals("some5tring', {}[]:",((JSONStringTN) result).getValue());
@@ -84,7 +84,7 @@ public class GeneratorTest {
 
         var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
             JSONString json = new JSONString("\"some5tring', {}[]:");
-            generator.generateSchemaTree(json);
+            generator.generateJsonTree(json);
         });
         Assertions.assertEquals("Unterminated string", e.getMessage());
     }
