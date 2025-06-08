@@ -44,7 +44,7 @@ public class JSONValidator {
         if(verifier==null) {
             System.out.println("nie ma assertion " +assertion.getName());
             return handleUnknownKeyword(keyword);
-        } //TODO to oblec w try catch ?
+        }
 
 
         ValidationResultAndErrorMessage validationResult = verifier.verify(node, assertion, validatorInstance);
@@ -155,15 +155,55 @@ public class JSONValidator {
             return result;
         });
 
+        VerifyBoolAndVerifierMethod<JSONTreeNode, Double> verifyMultipleOfInteger = VerifyBoolAndVerifierMethod.withAssertionValueAsDouble();
+        verifyMultipleOfInteger.setVerifierMethod((node, assertion, validatorInstance) -> {
+
+            Integer nodeValue = ((JSONNumberTN) node).getValue().intValue();
+            ValidationResultAndErrorMessage result;
+
+            if((nodeValue / assertion) % 1 == 0){
+                result = ValidationResultAndErrorMessage.newInstanceValid();
+            }
+            else{
+                result = new ValidationResultAndErrorMessage();
+                result.setValid(false);
+                result.setMessage("Property "+node.getName()+" should be multiple of "+assertion);
+            }
+
+            return result;
+        });
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, Double> verifyMultipleOfDouble = VerifyBoolAndVerifierMethod.withAssertionValueAsDouble();
+        verifyMultipleOfDouble.setVerifierMethod((node, assertion, validatorInstance) -> {
+
+            Double nodeValue = ((JSONNumberTN) node).getValue();
+            ValidationResultAndErrorMessage result;
+
+            if((nodeValue / assertion) % 1 == 0){
+                result = ValidationResultAndErrorMessage.newInstanceValid();
+            }
+            else{
+                result = new ValidationResultAndErrorMessage();
+                result.setValid(false);
+                result.setMessage("Property "+node.getName()+" should be multiple of "+assertion);
+            }
+
+            return result;
+        });
+
+
         verifiers.get("integer").put("minimum", verifyMinimum);
         verifiers.get("integer").put("maximum", verifyMaximum);
         verifiers.get("integer").put("$schema", verify$schema);
         verifiers.get("integer").put("type", verifyType3);
+        verifiers.get("integer").put("multipleOf", verifyMultipleOfInteger);
 
         verifiers.get("number").put("minimum", verifyMinimum);
         verifiers.get("number").put("maximum", verifyMaximum);
         verifiers.get("number").put("$schema", verify$schema);
         verifiers.get("number").put("type", verifyType);
+        verifiers.get("number").put("multipleOf", verifyMultipleOfDouble);
+
 
 
         VerifyBoolAndVerifierMethod verifyRequired = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
@@ -233,7 +273,6 @@ public class JSONValidator {
             ValidationResultAndErrorMessage result = ValidationResultAndErrorMessage.newInstanceValid();
 
             for(var commonProp : propertiesPresentInBoth){
-                System.out.println(commonProp.getName());
                 JSONTreeNode nodePropertyWithSameName =  nodeProperties.stream().filter(nodeProp -> commonProp.getName().equals(nodeProp.getName())).findAny().get();
                 try {
                     result.setValid(validatorInstance.validateAgainstSchema(nodePropertyWithSameName, (JSONObjectTN) commonProp));

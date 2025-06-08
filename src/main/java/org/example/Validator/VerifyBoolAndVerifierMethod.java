@@ -1,12 +1,9 @@
 package org.example.Validator;
 
 import org.example.Function.OperationReturnsValidationResultAndErrorMessage;
-import org.example.JSONString;
 import org.example.JSONTN.*;
-
-import javax.xml.validation.Validator;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
+
 
 public class VerifyBoolAndVerifierMethod<NodeObjectType extends JSONTreeNode, AssertionObjectType> {
 
