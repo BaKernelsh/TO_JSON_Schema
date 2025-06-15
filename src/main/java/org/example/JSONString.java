@@ -43,13 +43,15 @@ public class JSONString {
     //zwraca nazwe property, i usuwa ja ze stringa razem z konczacym ", wczesniej poczatkowy " powinien byc usuniety
     //mozna tez uzywac do pobierania wartosci stringa
     public String getPropertyName() throws JSONSchemaGeneratorException {
+        //System.out.println("przed indexOf");
         int indexOfEnd = json.indexOf('"');
+        //System.out.println("jest indexOf");
         if(indexOfEnd == -1)
             throw new JSONSchemaGeneratorException("Unterminated string");
 
         String propertyName = json.substring(0,indexOfEnd);
-
-        if(json.charAt(indexOfEnd-1) == '\\'){
+        //System.out.println(propertyName);
+        if(indexOfEnd != 0 && json.charAt(indexOfEnd-1) == '\\'){ //indexOfEnd == 0 - pusty string
             json = json.substring(indexOfEnd+1);
             return propertyName + "\"" +getPropertyName();
         }

@@ -80,6 +80,18 @@ public class GeneratorTest {
     }
 
     @Test
+    public void generateTreeFromEmptyString(){
+
+        Assertions.assertDoesNotThrow(() -> {
+            JSONString json = new JSONString("\"\"");
+            JSONTreeNode result = generator.generateJsonTree(json);
+            Assertions.assertInstanceOf(JSONStringTN.class, result);
+            Assertions.assertEquals(JSONTreeNodeType.STRING, result.getType());
+            Assertions.assertEquals("",((JSONStringTN) result).getValue());
+        });
+    }
+
+    @Test
     public void generateTreeFromSingleStringShouldThrowUnterminatedString(){
 
         var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {

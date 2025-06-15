@@ -70,6 +70,16 @@ public class JSONStringTest {
    }
 
    @Test
+   public void getPropertyNameWithQuotationAtStartTest(){
+       JSONString testString = new JSONString("\"");
+       Assertions.assertDoesNotThrow(()-> {
+           String emptyString = testString.getPropertyName();
+           Assertions.assertEquals("", emptyString);
+       });
+
+   }
+
+   @Test
    public void getNull(){
         //jest sam null
         JSONString testString = new JSONString("null");
