@@ -91,4 +91,28 @@ public class GeneratorTest {
 
 
 
+
+    @Test
+    public void generateTreeFromStringWithEscapedQuotationsInsideTest(){
+        Assertions.assertDoesNotThrow(() -> {
+            JSONString json = new JSONString("\"The value of \\\"additionalProperties\\\" MUST be a valid JSON Schema. Boolean \\\"false\\\" forbids everything.\"");
+            JSONTreeNode result = generator.generateJsonTree(json);
+            System.out.println(((JSONStringTN) result).getValue());
+
+            Assertions.assertInstanceOf(JSONStringTN.class, result);
+            Assertions.assertEquals(JSONTreeNodeType.STRING, result.getType());
+            Assertions.assertEquals("The value of \\\"additionalProperties\\\" MUST be a valid JSON Schema. Boolean \\\"false\\\" forbids everything.",
+                    ((JSONStringTN) result).getValue());
+        });
+    }
+
+    @Test
+    public void generateTreeFromStringWithUnescapedQuotationsInsideTest(){
+        var e =Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
+            JSONString json = new JSONString("{\"p\":\"The value of \"additionalProperties\\\" MUST be a valid JSON Schema. Boolean \\\"false\\\" forbids everything.\"}");
+            generator.generateJsonTree(json);
+        });
+        System.out.println(e.getMessage());
+    }
+
 }

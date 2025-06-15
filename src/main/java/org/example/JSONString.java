@@ -48,6 +48,12 @@ public class JSONString {
             throw new JSONSchemaGeneratorException("Unterminated string");
 
         String propertyName = json.substring(0,indexOfEnd);
+
+        if(json.charAt(indexOfEnd-1) == '\\'){
+            json = json.substring(indexOfEnd+1);
+            return propertyName + "\"" +getPropertyName();
+        }
+
         json = json.substring(indexOfEnd+1);
         return propertyName;
     }
