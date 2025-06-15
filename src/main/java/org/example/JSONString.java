@@ -43,14 +43,13 @@ public class JSONString {
     //zwraca nazwe property, i usuwa ja ze stringa razem z konczacym ", wczesniej poczatkowy " powinien byc usuniety
     //mozna tez uzywac do pobierania wartosci stringa
     public String getPropertyName() throws JSONSchemaGeneratorException {
-        //System.out.println("przed indexOf");
         int indexOfEnd = json.indexOf('"');
-        //System.out.println("jest indexOf");
         if(indexOfEnd == -1)
             throw new JSONSchemaGeneratorException("Unterminated string");
 
         String propertyName = json.substring(0,indexOfEnd);
         //System.out.println(propertyName);
+
         if(indexOfEnd != 0 && json.charAt(indexOfEnd-1) == '\\'){ //indexOfEnd == 0 - pusty string
             json = json.substring(indexOfEnd+1);
             return propertyName + "\"" +getPropertyName();
@@ -134,7 +133,10 @@ public class JSONString {
         //int indexAfterLastNumberCharacter = 0;
         int i = 0; //index po ostatnim znaku liczby
         for(; i< json.length(); i++){
+            //System.out.println(json);
             char currentChar = json.charAt(i);
+            /*if(Character.isDigit(currentChar))
+                System.out.println(currentChar);*/
             if(!(Character.isDigit(currentChar) || currentChar == '.' || currentChar == 'e' || currentChar == 'E' || currentChar == '-' || currentChar == '+')){
                 //indexAfterLastNumberCharacter = i;
                 break;
@@ -143,7 +145,7 @@ public class JSONString {
 
 
         String numberString = json.substring(0, i);
-        if(numberString.charAt(0) == '0' && (numberString.charAt(1) == '0' || numberString.charAt(1) != '.'))
+        if(numberString.length() > 1 && numberString.charAt(0) == '0' && (numberString.charAt(1) == '0' || numberString.charAt(1) != '.'))
             throw new JSONSchemaGeneratorException("Leading zeros are not allowed");
         if(numberString.endsWith(".") || numberString.endsWith("e") || numberString.endsWith("E") || numberString.endsWith("-") || numberString.endsWith("+"))
             throw new JSONSchemaGeneratorException("Invalid number: Number cannot end with '" + numberString.charAt(numberString.length()-1) + "'");

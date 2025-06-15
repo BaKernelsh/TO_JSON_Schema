@@ -276,7 +276,10 @@ public class JSONStringTest {
             numberString = testString.getNumber();
             Assertions.assertEquals("456.456E+5", numberString);
 
-
+            //jedno 0
+            testString = new JSONString("\n         0, key2:{sk:23}}");
+            numberString = testString.getNumber();
+            Assertions.assertEquals("0", numberString);
 
         }catch(Exception e){
             e.printStackTrace();
