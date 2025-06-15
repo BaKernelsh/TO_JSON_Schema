@@ -13,6 +13,8 @@ public class JSONValidator {
     private OnUnknownKeyword onUnknownKeyword = OnUnknownKeyword.THROW;
     //TODO nie throwowanie przy nieudanej walidacji tylko zbieranie message zeby je póżniej wyświetlić w gui
 
+
+    //TODO przypadek kiedy schema to true / false
     public boolean validateAgainstSchema(String json, String schemaString) throws  Exception {
         JSONTreeNode jsonRoot = generator.generateJsonTree(new JSONString(json));
         return validateAgainstSchema(jsonRoot, schemaString);

@@ -102,8 +102,6 @@ public class GeneratorTest {
     }
 
 
-
-
     @Test
     public void generateTreeFromStringWithEscapedQuotationsInsideTest(){
         Assertions.assertDoesNotThrow(() -> {

@@ -48,7 +48,6 @@ public class JSONString {
             throw new JSONSchemaGeneratorException("Unterminated string");
 
         String propertyName = json.substring(0,indexOfEnd);
-        //System.out.println(propertyName);
 
         if(indexOfEnd != 0 && json.charAt(indexOfEnd-1) == '\\'){ //indexOfEnd == 0 - pusty string
             json = json.substring(indexOfEnd+1);
@@ -130,15 +129,12 @@ public class JSONString {
         if(json.charAt(0) != '-' && !Character.isDigit(json.charAt(0)))
             return null;
 
-        //int indexAfterLastNumberCharacter = 0;
+
         int i = 0; //index po ostatnim znaku liczby
         for(; i< json.length(); i++){
-            //System.out.println(json);
+
             char currentChar = json.charAt(i);
-            /*if(Character.isDigit(currentChar))
-                System.out.println(currentChar);*/
             if(!(Character.isDigit(currentChar) || currentChar == '.' || currentChar == 'e' || currentChar == 'E' || currentChar == '-' || currentChar == '+')){
-                //indexAfterLastNumberCharacter = i;
                 break;
             }
         }
