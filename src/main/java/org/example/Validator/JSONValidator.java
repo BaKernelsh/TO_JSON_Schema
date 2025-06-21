@@ -1,5 +1,8 @@
 package org.example.Validator;
 
+import org.example.Exception.JSONSchemaGeneratorException;
+import org.example.Exception.JSONValidationException;
+import org.example.Exception.UnknownValidationKeywordException;
 import org.example.Generator.Generator;
 import org.example.JSONString;
 import org.example.JSONTN.*;
@@ -15,20 +18,25 @@ public class JSONValidator {
 
 
     //TODO przypadek kiedy schema to true / false
-    public boolean validateAgainstSchema(String json, String schemaString) throws  Exception {
+    public boolean validateAgainstSchema(String json, String schemaString) throws JSONValidationException,
+                                          JSONSchemaGeneratorException, UnknownValidationKeywordException
+    {
         JSONTreeNode jsonRoot = generator.generateJsonTree(new JSONString(json));
         return validateAgainstSchema(jsonRoot, schemaString);
     }
 
-    public boolean validateAgainstSchema(JSONTreeNode node, String schemaString) throws Exception {
+    public boolean validateAgainstSchema(JSONTreeNode node, String schemaString) throws JSONValidationException,
+                                                JSONSchemaGeneratorException, UnknownValidationKeywordException
+    {
         JSONString schema = new JSONString(schemaString);
         JSONObjectTN schemaRoot = (JSONObjectTN) generator.generateJsonTree(schema);
 
         return validateAgainstSchema(node, schemaRoot);
     }
 
-    public boolean validateAgainstSchema(JSONTreeNode node, JSONObjectTN schema) throws Exception {
-
+    public boolean validateAgainstSchema(JSONTreeNode node, JSONObjectTN schema) throws JSONValidationException,
+                                                                              UnknownValidationKeywordException
+    {
         boolean result = true;
 
         ArrayList<JSONTreeNode> assertions = schema.getProperties();
@@ -43,7 +51,7 @@ public class JSONValidator {
     }
 
 
-    private boolean validateNodeAgainstAssertion(JSONTreeNode node, JSONTreeNode assertion, JSONValidator validatorInstance) throws Exception {
+    private boolean validateNodeAgainstAssertion(JSONTreeNode node, JSONTreeNode assertion, JSONValidator validatorInstance) throws JSONValidationException, UnknownValidationKeywordException {
         String keyword = assertion.getName();
 
         VerifyBoolAndVerifierMethod verifier = verifiers.get(node.getTypeAsString()).get(keyword);
@@ -58,7 +66,7 @@ public class JSONValidator {
         if(!validationResult.isValid() ){
             if(validationResult.ignoreInvalidity())
                 return false;
-            throw new Exception("Validation failed for keyword: " +keyword + " " +validationResult.getMessage());
+            throw new JSONValidationException("Validation failed for keyword: " +keyword + " " +validationResult.getMessage());
         }
         else
             return true;
@@ -66,13 +74,13 @@ public class JSONValidator {
 
 
 
-    private boolean handleUnknownKeyword(String keyword) throws RuntimeException{
+    private boolean handleUnknownKeyword(String keyword) throws UnknownValidationKeywordException{
         if(onUnknownKeyword == OnUnknownKeyword.KEYWORD_VALIDATION_UNSUCCESFUL_CONTINUE_VALIDATION)
             return false;
         if(onUnknownKeyword == OnUnknownKeyword.KEYWORD_VALIDATION_SUCCESFUL_CONTINUE_VALIDATION)
             return true;
         else
-            throw new RuntimeException("Unknown validation keyword: "+keyword);
+            throw new UnknownValidationKeywordException("Unknown validation keyword: "+keyword);
     }
 
 
