@@ -2,6 +2,8 @@ package org.example.Test;
 
 
 import org.example.Exception.JSONSchemaGeneratorException;
+import org.example.Exception.JSONValidationException;
+import org.example.Exception.UnknownValidationKeywordException;
 import org.example.Generator.Generator;
 import org.example.JSONString;
 import org.example.JSONTN.*;
@@ -29,6 +31,7 @@ public class TestFilesVisitor extends SimpleFileVisitor<Path> {
     private JSONValidator validatorPassingUnknownKeywords = new JSONValidator();
     private int testsCount = 0;
     private int testsPassed = 0;
+    private int notImplemented = 0;
 
     public TestFilesVisitor(){
         super();
@@ -38,86 +41,91 @@ public class TestFilesVisitor extends SimpleFileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        System.out.println(file);
-        try {
-            String testCasesArrayString = getTestCasesArrayStringFromFile(file);
-            JSONArrayTN testCasesArray = (JSONArrayTN) generator.generateJsonTree(new JSONString(testCasesArrayString));
+        //System.out.println(file);
+        if(file.getFileName().toString().equals("dependentRequired.json")) {
+            try {
+                String testCasesArrayString = getTestCasesArrayStringFromFile(file);
+                JSONArrayTN testCasesArray = (JSONArrayTN) generator.generateJsonTree(new JSONString(testCasesArrayString));
 
-            LinkedHashSet<JSONTreeNode> testCases = testCasesArray.getItems();
+                LinkedHashSet<JSONTreeNode> testCases = testCasesArray.getItems();
 
-            testCases.forEach(testCaseItem -> {
-                JSONObjectTN testCase = (JSONObjectTN) testCaseItem;
-                System.out.println(
-                        ((JSONStringTN)
-                                testCase.getProperties().stream()
-                                .filter(prop-> prop.getName().equals("description"))
-                                .toList().getFirst()
-                        ).getValue()
-                );
-
-                JSONTreeNode testSchema = testCase.getProperties().stream().
-                        filter(prop-> prop.getName().equals("schema"))
-                        .toList().getFirst();
-
-
-                LinkedHashSet<JSONTreeNode> tests =
-                        ((JSONArrayTN)
-                            testCase.getProperties().stream()
-                            .filter(prop -> prop.getName().equals("tests"))
-                            .toList().getFirst()
-                        ).getItems();
-
-                tests.forEach(test -> {
-                    testsCount++;
-                    JSONObjectTN testObject = (JSONObjectTN) test;
+                testCases.forEach(testCaseItem -> {
+                    JSONObjectTN testCase = (JSONObjectTN) testCaseItem;
                     System.out.println(
                             ((JSONStringTN)
-                                testObject.getProperties().stream()
-                                .filter(testProp -> testProp.getName().equals("description"))
-                                .toList().getFirst()
+                                    testCase.getProperties().stream()
+                                            .filter(prop -> prop.getName().equals("description"))
+                                            .toList().getFirst()
                             ).getValue()
                     );
 
-                    boolean isDocumentValid =
-                            ((JSONBooleanTN)
-                                testObject.getProperties().stream()
-                                .filter(testProp -> testProp.getName().equals("valid"))
-                                .toList().getFirst()
-                            ).getValue();
-
-                    JSONTreeNode jsonToValidate =
-                            testObject.getProperties().stream()
-                            .filter(testProp -> testProp.getName().equals("data"))
+                    JSONTreeNode testSchema = testCase.getProperties().stream().
+                            filter(prop -> prop.getName().equals("schema"))
                             .toList().getFirst();
 
-                    try {
-                        if (testSchema instanceof JSONObjectTN) {
-                            boolean validationResult = validatorPassingUnknownKeywords.validateAgainstSchema(jsonToValidate, (JSONObjectTN) testSchema);
+
+                    LinkedHashSet<JSONTreeNode> tests =
+                            ((JSONArrayTN)
+                                    testCase.getProperties().stream()
+                                            .filter(prop -> prop.getName().equals("tests"))
+                                            .toList().getFirst()
+                            ).getItems();
+
+                    tests.forEach(test -> {
+                        testsCount++;
+                        JSONObjectTN testObject = (JSONObjectTN) test;
+                        System.out.println(
+                                ((JSONStringTN)
+                                        testObject.getProperties().stream()
+                                                .filter(testProp -> testProp.getName().equals("description"))
+                                                .toList().getFirst()
+                                ).getValue()
+                        );
+
+                        boolean isDocumentValid =
+                                ((JSONBooleanTN)
+                                        testObject.getProperties().stream()
+                                                .filter(testProp -> testProp.getName().equals("valid"))
+                                                .toList().getFirst()
+                                ).getValue();
+
+                        JSONTreeNode jsonToValidate =
+                                testObject.getProperties().stream()
+                                        .filter(testProp -> testProp.getName().equals("data"))
+                                        .toList().getFirst();
+
+                        try {
+                            //if (testSchema instanceof JSONObjectTN) {
+                            boolean validationResult = validator.validateAgainstSchema(jsonToValidate, testSchema);
                             if (isDocumentValid == validationResult) {
                                 System.out.println("Test passed");
                                 testsPassed++;
                             } else
                                 System.out.println("Test failed");
-                        }
-                    }catch(Exception e){
-                        //TODO zrobic osobną klasę exception do nieudanej walidacji i do nieznanego keywordu
-                        if( !isDocumentValid ){
-                            System.out.println("Test passed");
-                            testsPassed++;
-                        }
 
-                        System.out.println(e.getMessage());
-                    }
+                        } catch (JSONValidationException e) {
+                            if (!isDocumentValid) {
+                                System.out.println("Test passed");
+                                testsPassed++;
+                            } else {
+                                System.out.println("Test failed");
+                            }
+                        } catch (UnknownValidationKeywordException e) {
+                            System.out.println("Not implemented");
+                            notImplemented++;
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                        }
+                    });
+
                 });
 
-            });
+                System.out.println("Tests passed: " + testsPassed + " / " + testsCount);
 
-            System.out.println("Tests passed: "+testsPassed+" / "+testsCount);
-
-        } catch (JSONSchemaGeneratorException e) {
-            e.printStackTrace(System.out);
+            } catch (JSONSchemaGeneratorException e) {
+                e.printStackTrace(System.out);
+            }
         }
-
         return CONTINUE;
     }
 

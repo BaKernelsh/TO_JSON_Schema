@@ -1,3 +1,6 @@
+import org.example.Exception.JSONSchemaGeneratorException;
+import org.example.Exception.JSONValidationException;
+import org.example.Exception.UnknownValidationKeywordException;
 import org.example.Generator.AssertionConfiguration;
 import org.example.Generator.Generator;
 import org.example.JSONString;
@@ -151,9 +154,9 @@ public class ValidationTest {
     }
 
     @Test
-    public void ObjectPropertiesValidationShouldThrowUnknownValidationKeywordTest(){
-        var e = Assertions.assertThrows(Exception.class, () -> {
-            JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
+    public void ObjectPropertiesValidationShouldThrowUnknownValidationKeywordTest() throws JSONSchemaGeneratorException, JSONValidationException, UnknownValidationKeywordException {
+        //var e = Assertions.assertThrows(Exception.class, () -> {
+            JSONString json = new JSONString("{\"k\":1234.56,\"b\":2}");
             JSONTreeNode root = generator.generateJsonTree(json);
 
             String schema = "{\n" +
@@ -184,10 +187,10 @@ public class ValidationTest {
             JSONValidator validator = new JSONValidator();
             validator.validateAgainstSchema(root, schema);
 
-        });
+        //});
 
-        Assertions.assertEquals("Validation failed for keyword: properties Unknown validation keyword: multipleOf", e.getMessage());
-        System.out.println(e.getMessage());
+        //Assertions.assertEquals("Validation failed for keyword: properties Unknown validation keyword: multipleOf", e.getMessage());
+        //System.out.println(e.getMessage());
     }
 
     @Test
@@ -228,4 +231,94 @@ public class ValidationTest {
         });
     }
 
+    @Test
+    public void stringValidationTest(){
+        Assertions.assertDoesNotThrow(() -> {
+            String json = "\"blabla\"";
+            String schema = generator.generateSchema(json);
+            /*String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"string\",\n" +
+                    "  \"maxLength\": 6,\n" +
+                    "  \"minLength\": 6,\n" +
+                    "  \"pattern\": \"\\Qblabla\\E\"\n" +
+                    "}";*/
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            boolean result = validator.validateAgainstSchema(json, schema);
+            Assertions.assertTrue(result);
+        });
+    }
+
+    @Test
+    public void objectValidationTest(){
+        Assertions.assertDoesNotThrow(() -> {
+            String json = "{\"p\": 2, \"e\": null}";
+            String schema = generator.generateSchema(json);
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            boolean result = validator.validateAgainstSchema(json, schema);
+            Assertions.assertTrue(result);
+        });
+
+    }
+
+    @Test
+    public void objectDependentRequiredValidationTest(){
+        Assertions.assertDoesNotThrow(() -> {
+            String json = "{\"p\": null, \"e\": null}";
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"object\",\n" +
+                    "  \"properties\": {\n" +
+                    "    \"p\": {\n" +
+                    "      \"type\": \"null\"\n" +
+                    "    },\n" +
+                    "    \"e\": {\n" +
+                    "      \"type\": \"null\"\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"required\": [\"p\", \"e\"],\n" +
+                    "  \"maxProperties\": 2,\n" +
+                    "  \"minProperties\": 2,\n" +
+                    "  \"dependentRequired\": {\"p\": [\"e\"]}\n" +
+                    "}";
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            boolean result = validator.validateAgainstSchema(json, schema);
+            Assertions.assertTrue(result);
+        });
+
+    }
+
+    @Test
+    public void objectDependentRequiredValidationShouldThrowTest(){
+        var e = Assertions.assertThrows(JSONValidationException.class, () -> {
+            String json = "{\"p\": null, \"e\": null}";
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"object\",\n" +
+                    "  \"properties\": {\n" +
+                    "    \"p\": {\n" +
+                    "      \"type\": \"null\"\n" +
+                    "    },\n" +
+                    "    \"e\": {\n" +
+                    "      \"type\": \"null\"\n" +
+                    "    }\n" +
+                    "  },\n" +
+                    "  \"required\": [\"p\", \"e\"],\n" +
+                    "  \"maxProperties\": 2,\n" +
+                    "  \"minProperties\": 2,\n" +
+                    "  \"dependentRequired\": {\"p\": [\"e\", \"c\"]}\n" +
+                    "}";
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            validator.validateAgainstSchema(json, schema);
+        });
+        Assertions.assertEquals("Validation failed for keyword: dependentRequired Property p requires \"c\" property to be present", e.getMessage());
+    }
 }

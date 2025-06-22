@@ -68,7 +68,7 @@ public class AssertionConfiguration { //TODO metody do wlaczenia wylaczenia wszy
         assertions.get("object").put("required", new AssertionBoolAndAssertionStringGenerator(node -> "["+((JSONObjectTN) node).getPropertyNamesAsString()+"]" ));
         assertions.get("object").put("maxProperties", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONObjectTN) node).getProperties().size()) ));
         assertions.get("object").put("minProperties", new AssertionBoolAndAssertionStringGenerator(node -> Integer.toString(((JSONObjectTN) node).getProperties().size()) ));
-        //TODO dependentRequired
+        //pomijam dependentRequired
 
     }
 

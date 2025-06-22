@@ -8,6 +8,8 @@ import org.example.JSONString;
 import org.example.JSONTN.*;
 
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class JSONValidator {
     //<typ, <keyword,verifier>
@@ -34,12 +36,15 @@ public class JSONValidator {
         return validateAgainstSchema(node, schemaRoot);
     }
 
-    public boolean validateAgainstSchema(JSONTreeNode node, JSONObjectTN schema) throws JSONValidationException,
+    public boolean validateAgainstSchema(JSONTreeNode node, JSONTreeNode schema) throws JSONValidationException,
                                                                               UnknownValidationKeywordException
     {
+        if(schema instanceof JSONBooleanTN)
+            return ((JSONBooleanTN) schema).getValue();
+
         boolean result = true;
 
-        ArrayList<JSONTreeNode> assertions = schema.getProperties();
+        ArrayList<JSONTreeNode> assertions = ((JSONObjectTN) schema).getProperties();
 
         for(var assertion : assertions){
             boolean resultForAssertion = validateNodeAgainstAssertion(node, assertion, this);
@@ -91,6 +96,61 @@ public class JSONValidator {
         verifiers.put("null", new HashMap<>());
         verifiers.put("array", new HashMap<>());
         verifiers.put("string", new HashMap<>());
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, String> verifyStringPattern = VerifyBoolAndVerifierMethod.withAssertionValueAsString();
+        verifyStringPattern.setVerifierMethod((node, assertion, validatorInstance) ->
+        {
+            String nodeString = ((JSONStringTN) node).getValue();
+            boolean nodeMatchesPattern = Pattern.matches(assertion, nodeString);
+
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if(nodeMatchesPattern)
+                result.setValid(true);
+            else{
+                result.setValid(false);
+                if(node.isRoot())
+                    result.setMessage("String does not match pattern " + assertion);
+                else
+                    result.setMessage("String "+ node.getName() +"does not match pattern " + assertion);
+            }
+            return result;
+        });
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, Double> verifyStringMaxLength = VerifyBoolAndVerifierMethod.withAssertionValueAsDouble();
+        verifyStringMaxLength.setVerifierMethod((node, assertion, validatorInstance) ->
+        {
+            long nodeStringLength = ((JSONStringTN) node).getValue().length();
+
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if(nodeStringLength <= assertion)
+                result.setValid(true);
+            else{
+                result.setValid(false);
+                if(node.isRoot())
+                    result.setMessage("Length of this string should be equal to or less than " + assertion.intValue());
+                else
+                    result.setMessage("Length of "+ node.getName() + " should be equal to or less than " + assertion.intValue());
+            }
+            return result;
+        });
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, Double> verifyStringMinLength = VerifyBoolAndVerifierMethod.withAssertionValueAsDouble();
+        verifyStringMinLength.setVerifierMethod((node, assertion, validatorInstance) ->
+        {
+            long nodeStringLength = ((JSONStringTN) node).getValue().length();
+
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if(nodeStringLength >= assertion)
+                result.setValid(true);
+            else{
+                result.setValid(false);
+                if(node.isRoot())
+                    result.setMessage("Length of this string should be equal to or greater than " + assertion.intValue());
+                else
+                    result.setMessage("Length of "+ node.getName() + " should be equal to or greater than " + assertion.intValue());
+            }
+            return result;
+        });
 
 
         VerifyBoolAndVerifierMethod placeholder = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
@@ -172,6 +232,34 @@ public class JSONValidator {
             return result;
         });
 
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, Double> verifyExclusiveMinimum = VerifyBoolAndVerifierMethod.withAssertionValueAsDouble();
+        verifyExclusiveMinimum.setVerifierMethod((node, assertion, validatorInstance) ->
+        {
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if( ((JSONNumberTN) node).getValue() > assertion )
+                result.setValid(true);
+            else {
+                result.setValid(false);
+                result.setMessage(" value of "+node.getName()+" must be greater than "+assertion);
+            }
+            return result;
+        });
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, Double> verifyExclusiveMaximum = VerifyBoolAndVerifierMethod.withAssertionValueAsDouble();
+        verifyExclusiveMaximum.setVerifierMethod((node, assertion, validatorInstance) ->
+        {
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if( ((JSONNumberTN) node).getValue() < assertion )
+                result.setValid(true);
+            else {
+                result.setValid(false);
+                result.setMessage(" value of "+node.getName()+" must be lower than "+assertion);
+            }
+            return result;
+        });
+
+
         VerifyBoolAndVerifierMethod<JSONTreeNode, Double> verifyMultipleOfInteger = VerifyBoolAndVerifierMethod.withAssertionValueAsDouble();
         verifyMultipleOfInteger.setVerifierMethod((node, assertion, validatorInstance) -> {
 
@@ -210,13 +298,17 @@ public class JSONValidator {
 
 
         verifiers.get("integer").put("minimum", verifyMinimum);
+        verifiers.get("integer").put("exclusiveMinimum", verifyExclusiveMinimum);
         verifiers.get("integer").put("maximum", verifyMaximum);
+        verifiers.get("integer").put("exclusiveMaximum", verifyExclusiveMaximum);
         verifiers.get("integer").put("$schema", verify$schema);
         verifiers.get("integer").put("type", verifyType3);
         verifiers.get("integer").put("multipleOf", verifyMultipleOfInteger);
 
         verifiers.get("number").put("minimum", verifyMinimum);
+        verifiers.get("number").put("exclusiveMinimum", verifyExclusiveMinimum);
         verifiers.get("number").put("maximum", verifyMaximum);
+        verifiers.get("number").put("exclusiveMaximum", verifyExclusiveMaximum);
         verifiers.get("number").put("$schema", verify$schema);
         verifiers.get("number").put("type", verifyType);
         verifiers.get("number").put("multipleOf", verifyMultipleOfDouble);
@@ -292,8 +384,8 @@ public class JSONValidator {
             for(var commonProp : propertiesPresentInBoth){
                 JSONTreeNode nodePropertyWithSameName =  nodeProperties.stream().filter(nodeProp -> commonProp.getName().equals(nodeProp.getName())).findAny().get();
                 try {
-                    result.setValid(validatorInstance.validateAgainstSchema(nodePropertyWithSameName, (JSONObjectTN) commonProp));
-                    if(!result.isValid())  //nie ma ustawionej metody dla keywordu i ma byc kontynuowana walidacja
+                    result.setValid(validatorInstance.validateAgainstSchema(nodePropertyWithSameName, commonProp));
+                    if(!result.isValid())  //nie ma ustawionej metody dla keywordu i ma byc kontynuowana walidacja - walidacja nie rzuca wyjatku wiec to sie wykonuje
                         result.setIgnoreInvalidity(true);
                 }catch (Exception e){
                     result.setValid(false);
@@ -305,19 +397,107 @@ public class JSONValidator {
             return result;
         });
 
+        VerifyBoolAndVerifierMethod<JSONTreeNode, Integer> verifyMaxProperties = VerifyBoolAndVerifierMethod.withAssertionValueAsInteger();
+        verifyMaxProperties.setVerifierMethod((node, assertion, validatorInstance) ->
+        {
+            long nodePropertiesCount = ((JSONObjectTN) node).getProperties().size();
+
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if(nodePropertiesCount <= assertion)
+                result.setValid(true);
+            else{
+                result.setValid(false);
+                if(node.isRoot())
+                    result.setMessage("Object should contain a maximum of "+assertion+ " properties" );
+                else
+                    result.setMessage("Object "+node.getName() +" should contain a maximum of "+assertion+ " properties" );
+            }
+            return result;
+        });
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, Integer> verifyMinProperties = VerifyBoolAndVerifierMethod.withAssertionValueAsInteger();
+        verifyMinProperties.setVerifierMethod((node, assertion, validatorInstance) ->
+        {
+            long nodePropertiesCount = ((JSONObjectTN) node).getProperties().size();
+
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            if(nodePropertiesCount >= assertion)
+                result.setValid(true);
+            else{
+                result.setValid(false);
+                if(node.isRoot())
+                    result.setMessage("Object should contain a minimum of "+assertion+ " properties" );
+                else
+                    result.setMessage("Object "+node.getName() +" should contain a minimum of "+assertion+ " properties" );
+            }
+            return result;
+        });
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, JSONObjectTN> verifyDependentRequired = VerifyBoolAndVerifierMethod.withAssertionValueAsObject();
+        verifyDependentRequired.setVerifierMethod( (node, assertion, validatorInstance) ->
+        {
+            ArrayList<String> validatedObjectPropertiesNames = ((JSONObjectTN) node).getPropertyNames();
+
+            ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
+            result.setValid(true);
+
+            //try{
+                //validatedObjectPropertiesNames.forEach(name -> {
+                for(String name : validatedObjectPropertiesNames){
+                    try {
+                        JSONArrayTN propInAssertion = (JSONArrayTN) assertion.getProperties().stream()
+                                .filter(assPropName -> assPropName.getName().equals(name))
+                                .toList().getFirst();
+
+                        LinkedHashSet<JSONStringTN> namesInArrayAsJSONStringTN =
+                                propInAssertion.getItems().stream()
+                                .map(e -> (JSONStringTN) e)
+                                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+
+                        for (JSONStringTN e : namesInArrayAsJSONStringTN) {
+                            String nameInArray = e.getValue();
+                            if (!validatedObjectPropertiesNames.contains(nameInArray)) {
+                                result.setValid(false);
+                                result.setMessage("Property "+ name +" requires \"" + nameInArray + "\" property to be present");
+                                return result;
+                                //break;
+                            }
+                        }
+
+
+                    }catch (NoSuchElementException e) {}
+                     catch (ClassCastException e) {
+                        System.out.println(e.getMessage());
+                        result.setValid(false);
+                        result.setMessage("Properties of keyword \"dependent required\" should be arrays of strings");
+                        return result;
+                     }
+                }
+                //});
+            return result;
+        });
+
         verifiers.get("object").put("$schema", verify$schema);
         verifiers.get("object").put("type", verifyType);
         verifiers.get("object").put("required", verifyRequired2);
         verifiers.get("object").put("properties", verifyProperties);
-        verifiers.get("object").put("maxProperties", placeholder);
-        verifiers.get("object").put("minProperties", placeholder);
+        verifiers.get("object").put("maxProperties", verifyMaxProperties);
+        verifiers.get("object").put("minProperties", verifyMinProperties);
+        verifiers.get("object").put("dependentRequired", verifyDependentRequired);
+
 
         verifiers.get("null").put("$schema", verify$schema);
         verifiers.get("null").put("type", verifyType);
 
+        verifiers.get("string").put("$schema", verify$schema);
+        verifiers.get("string").put("type", verifyType);
+        verifiers.get("string").put("minLength", verifyStringMinLength);
+        verifiers.get("string").put("maxLength", verifyStringMaxLength);
+        verifiers.get("string").put("pattern", verifyStringPattern);
 
-
-
+        verifiers.get("array").put("$schema", verify$schema);
+        verifiers.get("array").put("type", verifyType);
 
     }
 
