@@ -96,6 +96,7 @@ public class JSONValidator {
         verifiers.put("null", new HashMap<>());
         verifiers.put("array", new HashMap<>());
         verifiers.put("string", new HashMap<>());
+        verifiers.put("boolean", new HashMap<>());
 
         VerifyBoolAndVerifierMethod<JSONTreeNode, String> verifyStringPattern = VerifyBoolAndVerifierMethod.withAssertionValueAsString();
         verifyStringPattern.setVerifierMethod((node, assertion, validatorInstance) ->
@@ -160,13 +161,15 @@ public class JSONValidator {
             return result;
         });
 
-        VerifyBoolAndVerifierMethod verifyType = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
+/*        VerifyBoolAndVerifierMethod verifyType = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
         {
             String nodeType = node.getTypeAsString();
             String requiredType = ((JSONStringTN) assertion).getValue();
+            System.out.println(nodeType);
+            System.out.println(requiredType);
 
             ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
-            if(nodeType.equals(requiredType))
+            if(nodeType.equals(requiredType) || (nodeType.equals("integer") && requiredType.equals("number")))
                 result.setValid(true);
             else{
                 result.setValid(false);
@@ -176,9 +179,9 @@ public class JSONValidator {
                     result.setMessage("Invalid type of "+node.getName()+" property. Should be: " +requiredType);
             }
             return result;
-        });
+        });*/
 
-
+//TODO type moze byc jako tablica stringow
         VerifyBoolAndVerifierMethod<JSONTreeNode, String> verifyType3 = VerifyBoolAndVerifierMethod.withAssertionValueAsString();
 
         verifyType3.setVerifierMethod((node,assertion, validatorInstance) ->
@@ -187,7 +190,7 @@ public class JSONValidator {
             String requiredType = assertion;
 
             ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
-            if(nodeType.equals(requiredType))
+            if(nodeType.equals(requiredType) || (nodeType.equals("integer") && requiredType.equals("number")))
                 result.setValid(true);
             else{
                 result.setValid(false);
@@ -310,7 +313,7 @@ public class JSONValidator {
         verifiers.get("number").put("maximum", verifyMaximum);
         verifiers.get("number").put("exclusiveMaximum", verifyExclusiveMaximum);
         verifiers.get("number").put("$schema", verify$schema);
-        verifiers.get("number").put("type", verifyType);
+        verifiers.get("number").put("type", verifyType3);
         verifiers.get("number").put("multipleOf", verifyMultipleOfDouble);
 
 
@@ -479,7 +482,7 @@ public class JSONValidator {
         });
 
         verifiers.get("object").put("$schema", verify$schema);
-        verifiers.get("object").put("type", verifyType);
+        verifiers.get("object").put("type", verifyType3);
         verifiers.get("object").put("required", verifyRequired2);
         verifiers.get("object").put("properties", verifyProperties);
         verifiers.get("object").put("maxProperties", verifyMaxProperties);
@@ -488,16 +491,38 @@ public class JSONValidator {
 
 
         verifiers.get("null").put("$schema", verify$schema);
-        verifiers.get("null").put("type", verifyType);
+        verifiers.get("null").put("type", verifyType3);
 
         verifiers.get("string").put("$schema", verify$schema);
-        verifiers.get("string").put("type", verifyType);
+        verifiers.get("string").put("type", verifyType3);
         verifiers.get("string").put("minLength", verifyStringMinLength);
         verifiers.get("string").put("maxLength", verifyStringMaxLength);
         verifiers.get("string").put("pattern", verifyStringPattern);
 
         verifiers.get("array").put("$schema", verify$schema);
-        verifiers.get("array").put("type", verifyType);
+        verifiers.get("array").put("type", verifyType3);
+
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, JSONTreeNode> verifyAllOf = VerifyBoolAndVerifierMethod.withAssertionValueAsArray();
+        verifyAllOf.forEachElementInArray((node, assertion, validatorInstance) ->
+        {
+            try {
+                return new ValidationResultAndErrorMessage(validatorInstance.validateAgainstSchema(node, assertion));
+            }catch(JSONValidationException|UnknownValidationKeywordException e){
+                return new ValidationResultAndErrorMessage(false, e.getMessage());
+            }
+        });
+
+        verifiers.get("integer").put("allOf", verifyAllOf);
+        verifiers.get("number").put("allOf", verifyAllOf);
+        verifiers.get("object").put("allOf", verifyAllOf);
+        verifiers.get("null").put("allOf", verifyAllOf);
+        verifiers.get("array").put("allOf", verifyAllOf);
+        verifiers.get("string").put("allOf", verifyAllOf);
+
+        verifiers.get("boolean").put("$schema", verify$schema);
+        verifiers.get("boolean").put("type", verifyType3);
+        verifiers.get("boolean").put("allOf", verifyAllOf);
 
     }
 
