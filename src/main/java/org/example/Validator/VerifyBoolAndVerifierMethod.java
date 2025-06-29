@@ -107,6 +107,9 @@ public class VerifyBoolAndVerifierMethod<NodeObjectType extends JSONTreeNode, As
     public static VerifyBoolAndVerifierMethod<JSONTreeNode, JSONObjectTN> withAssertionValueAsObject(){
         return new VerifyBoolAndVerifierMethod<JSONTreeNode, JSONObjectTN>(JSONObjectTN.class);
     }
+    public static VerifyBoolAndVerifierMethod<JSONTreeNode, JSONTreeNode> withAssertionValueAsJSONTreeNode(){
+        return new VerifyBoolAndVerifierMethod<JSONTreeNode, JSONTreeNode>(JSONTreeNode.class);
+    }
 
     public static VerifyBoolAndVerifierMethod<JSONTreeNode, JSONTreeNode> withAssertionValueAsArray(){ // nic nie zmienia, moze poprawic czytelnosc kodu klienta ?
         return new VerifyBoolAndVerifierMethod<JSONTreeNode, JSONTreeNode>(JSONTreeNode.class);

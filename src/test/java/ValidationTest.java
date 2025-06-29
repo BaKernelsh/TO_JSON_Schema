@@ -64,35 +64,47 @@ public class ValidationTest {
             Assertions.assertFalse(result);
         });
         System.out.println(e.getMessage());
-        Assertions.assertEquals("Validation failed for keyword: type Invalid type of nmb property. Should be: number", e.getMessage());
+        Assertions.assertEquals("Validation failed for keyword: minimum integer value of nmb must be equal to or greater than 1234.56", e.getMessage());
     }
 
     @Test
     public void IntegerMinimumValidationShouldThrowUnknownValidationKeywordTest(){
         var e = Assertions.assertThrows(Exception.class, () -> {
-            JSONString json = new JSONString("1234.56");
-            JSONTreeNode root = generator.generateJsonTree(json);
-            String schema = generator.generateSchemaString(root, "", 0);
+            String json = "1234.56";
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"number\",\n" +
+                    "  \"minimum\": 1234.56,\n" +
+                    "  \"maximum\": 1234.56,\n" +
+                    "  \"multipleOf\": 1234.56,\n" +
+                    "  \"unknownAssertion\": 1234.56\n" +
+                    "}";
             System.out.println(schema);
 
             JSONValidator validator = new JSONValidator();
-            validator.validateAgainstSchema(root, schema);
+            validator.setUnknownKeywordBehavior(OnUnknownKeyword.THROW);
+            validator.validateAgainstSchema(json, schema);
         });
-        //System.out.println(e.getMessage());
-        Assertions.assertEquals("Unknown validation keyword: multipleOf", e.getMessage());
+        Assertions.assertEquals("Unknown validation keyword: unknownAssertion", e.getMessage());
     }
 
     @Test
-    public void IntegerMinimumValidationWithUnknownValidationKeywordShouldReturnFalseTest(){
+    public void IntegerValidationWithUnknownValidationKeywordShouldReturnFalseTest(){
         Assertions.assertDoesNotThrow(() -> {
-            JSONString json = new JSONString("1234.56");
-            JSONTreeNode root = generator.generateJsonTree(json);
-            String schema = generator.generateSchemaString(root, "", 0);
+            String json = "1234.56";
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"number\",\n" +
+                    "  \"minimum\": 1234.56,\n" +
+                    "  \"maximum\": 1234.56,\n" +
+                    "  \"multipleOf\": 1234.56,\n" +
+                    "  \"unknownAssertion\": 1234.56\n" +
+                    "}";
             System.out.println(schema);
 
             JSONValidator validator = new JSONValidator();
             validator.setUnknownKeywordBehavior(OnUnknownKeyword.KEYWORD_VALIDATION_UNSUCCESFUL_CONTINUE_VALIDATION);
-            boolean result = validator.validateAgainstSchema(root, schema);
+            boolean result = validator.validateAgainstSchema(json, schema);
             Assertions.assertFalse(result);
         });
     }
@@ -155,7 +167,7 @@ public class ValidationTest {
 
     @Test
     public void ObjectPropertiesValidationShouldThrowUnknownValidationKeywordTest() throws JSONSchemaGeneratorException, JSONValidationException, UnknownValidationKeywordException {
-        //var e = Assertions.assertThrows(Exception.class, () -> {
+        var e = Assertions.assertThrows(JSONValidationException.class, () -> {
             JSONString json = new JSONString("{\"k\":1234.56,\"b\":2}");
             JSONTreeNode root = generator.generateJsonTree(json);
 
@@ -165,17 +177,10 @@ public class ValidationTest {
                     "  \"properties\": {\n" +
                     "    \"k\": {\n" +
                     "      \"type\": \"number\",\n" +
-                    "      \"minimum\": 1234.56,\n" +
-                    "      \"maximum\": 1234.56,\n" +
-                    "      \"multipleOf\": 1234.56\n" +
+                    "      \"unknownAssertion\": 1234.56\n" +
                     "    },\n" +
                     "    \"b\": {\n" +
                     "      \"type\": \"integer\",\n" +
-                    "      \"multipleOf\": 3,\n" +
-                    "      \"maximum\": 3,\n" +
-                    "      \"exclusiveMaximum\": 4,\n" +
-                    "      \"minimum\": 3,\n" +
-                    "      \"exclusiveMinimum\": 2\n" +
                     "    }\n" +
                     "  },\n" +
                     "  \"required\": [\"k\", \"b\"],\n" +
@@ -185,37 +190,28 @@ public class ValidationTest {
             System.out.println(schema);
 
             JSONValidator validator = new JSONValidator();
+            validator.setUnknownKeywordBehavior(OnUnknownKeyword.THROW);
             validator.validateAgainstSchema(root, schema);
 
-        //});
-
-        //Assertions.assertEquals("Validation failed for keyword: properties Unknown validation keyword: multipleOf", e.getMessage());
+        });
+        Assertions.assertEquals("Validation failed for keyword: properties Unknown validation keyword: unknownAssertion", e.getMessage());
         //System.out.println(e.getMessage());
     }
 
     @Test
     public void ObjectPropertiesValidationShouldContinueAndReturnFalseTest(){
         Assertions.assertDoesNotThrow(() -> {
-            JSONString json = new JSONString("{\"k\":1234.56,\"b\":3}");
-            JSONTreeNode root = generator.generateJsonTree(json);
-
+            String json = "{\"k\":1234.56,\"b\":3}";
             String schema = "{\n" +
                     "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
                     "  \"type\": \"object\",\n" +
                     "  \"properties\": {\n" +
                     "    \"k\": {\n" +
                     "      \"type\": \"number\",\n" +
-                    "      \"minimum\": 1234.56,\n" +
-                    "      \"maximum\": 1234.56,\n" +
-                    "      \"multipleOf\": 1234.56\n" +
+                    "      \"unknownAssertion\": 1234.56\n" +
                     "    },\n" +
                     "    \"b\": {\n" +
                     "      \"type\": \"integer\",\n" +
-                    "      \"multipleOf\": 3,\n" +
-                    "      \"maximum\": 3,\n" +
-                    "      \"exclusiveMaximum\": 4,\n" +
-                    "      \"minimum\": 3,\n" +
-                    "      \"exclusiveMinimum\": 2\n" +
                     "    }\n" +
                     "  },\n" +
                     "  \"required\": [\"k\", \"b\"],\n" +
@@ -226,7 +222,7 @@ public class ValidationTest {
 
             JSONValidator validator = new JSONValidator();
             validator.setUnknownKeywordBehavior(OnUnknownKeyword.KEYWORD_VALIDATION_UNSUCCESFUL_CONTINUE_VALIDATION);
-            boolean result = validator.validateAgainstSchema(root, schema);
+            boolean result = validator.validateAgainstSchema(json, schema);
             Assertions.assertFalse(result);
         });
     }

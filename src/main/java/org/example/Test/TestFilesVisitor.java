@@ -42,7 +42,7 @@ public class TestFilesVisitor extends SimpleFileVisitor<Path> {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         //System.out.println(file);
-        if(file.getFileName().toString().equals("type.json")) {
+        if(file.getFileName().toString().equals("allOf.json")) {
             try {
                 String testCasesArrayString = getTestCasesArrayStringFromFile(file);
                 JSONArrayTN testCasesArray = (JSONArrayTN) generator.generateJsonTree(new JSONString(testCasesArrayString));

@@ -48,14 +48,61 @@ public class JSONString {
             throw new JSONSchemaGeneratorException("Unterminated string");
 
         String propertyName = json.substring(0,indexOfEnd);
+        checkForUnescapedControlCharacters(propertyName);
+        String propertyNameWithEscapedChars = switchEscapedCharsSequencesToEscapedChars(propertyName);
+
 
         if(indexOfEnd != 0 && json.charAt(indexOfEnd-1) == '\\'){ //indexOfEnd == 0 - pusty string
             json = json.substring(indexOfEnd+1);
-            return propertyName + "\"" +getPropertyName();
+            return propertyNameWithEscapedChars + "\"" +getPropertyName();
         }
 
         json = json.substring(indexOfEnd+1);
-        return propertyName;
+        return propertyNameWithEscapedChars;
+    }
+
+    private String switchEscapedCharsSequencesToEscapedChars(String string){ //TODO to zrobić i tyle
+        string = string.replaceAll("\\\\n", "\n");
+        return string;
+    }
+
+    private void checkForUnescapedControlCharacters(String string) throws JSONSchemaGeneratorException {
+        for (char c : string.toCharArray()) {
+            if (c <= 0x1F || c == 0x7F) { // DEL (U+007F)
+                throw new JSONSchemaGeneratorException("Unescaped control character ["+ ControlCharNames.getControlCharName(c) +"] found");
+            }
+        }
+    }
+
+    private boolean checkControlCharsAreEscaped(String string){
+        int index = 0;
+        if((index = string.indexOf('\n')) != -1)
+            if(string.charAt(index-1) != '\\')
+                return false;
+        if((index = string.indexOf('\b')) != -1)
+            if(string.charAt(index-1) != '\\')
+                return false;
+        if((index = string.indexOf('\f')) != -1)
+            if(string.charAt(index-1) != '\\')
+                return false;
+        if((index = string.indexOf('\n')) != -1)
+            if(string.charAt(index-1) != '\\')
+                return false;
+        if((index = string.indexOf('\r')) != -1)
+            if(string.charAt(index-1) != '\\')
+                return false;
+        if((index = string.indexOf('\t')) != -1)
+            if(string.charAt(index-1) != '\\')
+                return false;
+
+
+/*        if((index = string.indexOf('\\')) != -1 && index != string.length()-1)
+            if(!(string.charAt(index+1) == '\n' || string.charAt(index+1) == '\\'
+               || string.charAt(index+1) == '\b' || string.charAt(index+1) == '\f'
+               || string.charAt(index+1) == '\r' || string.charAt(index+1) == '\t'
+               ) && string.charAt(index-1) != '\\')
+                return false;*/
+        return true;
     }
 
 

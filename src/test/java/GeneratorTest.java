@@ -92,6 +92,30 @@ public class GeneratorTest {
     }
 
     @Test
+    public void generateTreeFromStringWithNewlineCharShouldThrowTest(){
+        var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
+            JSONString json = new JSONString("\"bla\nbla\"");
+            System.out.println(json.getJson());
+            generator.generateJsonTree(json);
+        });
+        System.out.println(e.getMessage());
+    }
+
+    @Test
+    public void generateTreeFromStringWithEscapedNTest(){
+
+        Assertions.assertDoesNotThrow(() -> {
+
+            JSONString json = new JSONString("\"bla\\nbla\"");
+            System.out.println(json.getJson());
+            JSONTreeNode result = generator.generateJsonTree(json);
+            Assertions.assertInstanceOf(JSONStringTN.class, result);
+            Assertions.assertEquals(JSONTreeNodeType.STRING, result.getType());
+            Assertions.assertEquals("bla\nbla",((JSONStringTN) result).getValue());
+        });
+    }
+
+    @Test
     public void generateTreeFromSingleStringShouldThrowUnterminatedString(){
 
         var e = Assertions.assertThrows(JSONSchemaGeneratorException.class, () -> {
