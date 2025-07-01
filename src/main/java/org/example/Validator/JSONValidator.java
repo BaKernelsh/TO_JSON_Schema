@@ -58,6 +58,8 @@ public class JSONValidator {
 
     private boolean validateNodeAgainstAssertion(JSONTreeNode node, JSONTreeNode assertion, JSONValidator validatorInstance) throws JSONValidationException, UnknownValidationKeywordException {
         String keyword = assertion.getName();
+        //System.out.println(node.getTypeAsString());
+        //System.out.println(keyword);
 
         VerifyBoolAndVerifierMethod verifier = verifiers.get(node.getTypeAsString()).get(keyword);
         if(verifier==null) {
@@ -110,9 +112,9 @@ public class JSONValidator {
             else{
                 result.setValid(false);
                 if(node.isRoot())
-                    result.setMessage("String does not match pattern " + assertion);
+                    result.setMessage("String does not match pattern " + JSONString.switchEscapedCharsToEscapedCharSequences(assertion));
                 else
-                    result.setMessage("String "+ node.getName() +"does not match pattern " + assertion);
+                    result.setMessage("String "+ node.getName() +" does not match pattern " + JSONString.switchEscapedCharsToEscapedCharSequences(assertion));
             }
             return result;
         });
@@ -263,8 +265,8 @@ public class JSONValidator {
         VerifyBoolAndVerifierMethod verifyMinimum = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
         {
             Double minimum = ((JSONNumberTN) assertion).getValue();
-            System.out.println("minimum"  +minimum );
-            System.out.println(((JSONNumberTN) node).getValue());
+            //System.out.println("minimum"  +minimum );
+            //System.out.println(((JSONNumberTN) node).getValue());
 
             ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
             if( ((JSONNumberTN) node).getValue() >= minimum )
@@ -375,7 +377,7 @@ public class JSONValidator {
 
 
 
-        VerifyBoolAndVerifierMethod verifyRequired = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
+/*        VerifyBoolAndVerifierMethod verifyRequired = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
         {
 
             ArrayList<String> nodeProperties = ((JSONObjectTN) node).getPropertyNames();
@@ -411,12 +413,12 @@ public class JSONValidator {
                 result.setMessage("Object " +node.getName()+" should contain property: "+ missingProperty); //TODO else gdy node to root
             }
             return result;
-        });
+        });*/
 
 
         VerifyBoolAndVerifierMethod<JSONTreeNode, String> verifyRequired2 = VerifyBoolAndVerifierMethod.withAssertionValueAsArrayOfString();
         verifyRequired2.forEachElementInArray(((node, assertionValue, validatorInstance) -> {
-            System.out.println("WAlidowanie required");
+
             ArrayList<String> nodeProperties = ((JSONObjectTN) node).getPropertyNames();
 
             boolean propertyIsPresentInNode = nodeProperties.stream().anyMatch(property -> property.equals(assertionValue));
@@ -532,7 +534,7 @@ public class JSONValidator {
 
                     }catch (NoSuchElementException e) {}
                      catch (ClassCastException e) {
-                        System.out.println(e.getMessage());
+                        //System.out.println(e.getMessage());
                         result.setValid(false);
                         result.setMessage("Properties of keyword \"dependent required\" should be arrays of strings");
                         return result;
@@ -613,6 +615,16 @@ public class JSONValidator {
 
     public void setUnknownKeywordBehavior(OnUnknownKeyword onUnknownKeyword){
         this.onUnknownKeyword = onUnknownKeyword;
+    }
+
+    public void setVerifyingMethodForKeyword(String forType, String keywordName, VerifyBoolAndVerifierMethod method) throws Exception {
+
+        HashMap<String, VerifyBoolAndVerifierMethod> methodsForGivenType = verifiers.get(forType);
+        if(methodsForGivenType==null)
+            throw new Exception("Unknown type");
+
+        methodsForGivenType.put(keywordName, method);
+
     }
 
 }

@@ -53,6 +53,7 @@ public class AssertionGenerationTest {
             config.setAllUnused();
             config.setAllUsed();
             Generator generator = new Generator(config);
+
             //generator.assertionConfig = config;
 
             String schemaString = "";
