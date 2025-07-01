@@ -54,17 +54,18 @@ public class ValidationTest {
             nmbNode.setName("nmb");
             nmbNode.setValue("4");
 
+            String json = "4";
             JSONValidator validator = new JSONValidator();
-            boolean result = validator.validateAgainstSchema(nmbNode, "{\n" +
+            boolean result = validator.validateAgainstSchema(json, "{\n" +
                     "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
                     "  \"type\": \"number\",\n" +
-                    "  \"minimum\": 1234.56,\n" +
-                    "  \"maximum\": 1234.56\n" +
+                    "  \"minimum\": 1234,\n" +
+                    "  \"maximum\": 1234\n" +
                     "}");
             Assertions.assertFalse(result);
         });
         System.out.println(e.getMessage());
-        Assertions.assertEquals("Validation failed for keyword: minimum integer value of nmb must be equal to or greater than 1234.56", e.getMessage());
+        Assertions.assertEquals("Validation failed for keyword: minimum integer value must be equal to or greater than 1234.0", e.getMessage());
     }
 
     @Test
@@ -317,4 +318,104 @@ public class ValidationTest {
         });
         Assertions.assertEquals("Validation failed for keyword: dependentRequired Property p requires \"c\" property to be present", e.getMessage());
     }
+
+    @Test
+    public void arrayItemsValidationTest(){
+        Assertions.assertDoesNotThrow(() -> {
+            String json = "[3,\"str\"]";
+            String schema = generator.generateSchema(json);
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            boolean result = validator.validateAgainstSchema(json, schema);
+            Assertions.assertTrue(result);
+        });
+    }
+
+    @Test
+    public void arrayItemsValidationShouldThrowTest() {
+        var e = Assertions.assertThrows(JSONValidationException.class, () -> {
+            String json = "[3,\"str\"]";
+            //String schema = generator.generateSchema(json);
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"array\",\n" +
+                    "  \"items\": [\n" +
+                    "    {\n" +
+                    "      \"type\": \"integer\",\n" +
+                    "      \"multipleOf\": 3,\n" +
+                    "      \"maximum\": 2,\n" +
+                    "      \"exclusiveMaximum\": 4,\n" +
+                    "      \"minimum\": 3,\n" +
+                    "      \"exclusiveMinimum\": 2\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "      \"type\": \"string\",\n" +
+                    "      \"maxLength\": 3,\n" +
+                    "      \"minLength\": 3,\n" +
+                    "      \"pattern\": \"\\Qstr\\E\"\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}";
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            validator.validateAgainstSchema(json, schema);
+        });
+        Assertions.assertEquals("Validation failed for keyword: items Validation failed for keyword: maximum integer value of item must be equal to or lower than 2.0", e.getMessage());
+    }
+
+    @Test
+    public void arrayWithObjectAndArrayItemsValidationTest() {
+        Assertions.assertDoesNotThrow(() -> {
+            String json = "[{\"k\": 5, \"x\":\"srt\"},[\"str\"]]";
+            //String schema = generator.generateSchema(json);
+            String schema = "{\n" +
+                    "  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n" +
+                    "  \"type\": \"array\",\n" +
+                    "  \"items\": [\n" +
+                    "    {\n" +
+                    "      \"type\": \"object\",\n" +
+                    "      \"properties\": {\n" +
+                    "        \"k\": {\n" +
+                    "          \"type\": \"integer\",\n" +
+                    "          \"multipleOf\": 5,\n" +
+                    "          \"maximum\": 5,\n" +
+                    "          \"exclusiveMaximum\": 6,\n" +
+                    "          \"minimum\": 5,\n" +
+                    "          \"exclusiveMinimum\": 4\n" +
+                    "        },\n" +
+                    "        \"x\": {\n" +
+                    "          \"type\": \"string\",\n" +
+                    "          \"maxLength\": 3,\n" +
+                    "          \"minLength\": 3,\n" +
+                    "          \"pattern\": \"\\Qsrt\\E\"\n" +
+                    "        }\n" +
+                    "      },\n" +
+                    "      \"required\": [\"k\", \"x\"],\n" +
+                    "      \"maxProperties\": 2,\n" +
+                    "      \"minProperties\": 2\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "      \"type\": \"array\",\n" +
+                    "      \"items\": [\n" +
+                    "        {\n" +
+                    "          \"type\": \"string\",\n" +
+                    "          \"maxLength\": 3,\n" +
+                    "          \"minLength\": 3,\n" +
+                    "          \"pattern\": \"\\Qstr\\E\"\n" +
+                    "        }\n" +
+                    "      ]\n" +
+                    "    }\n" +
+                    "  ]\n" +
+                    "}";
+            System.out.println(schema);
+
+            JSONValidator validator = new JSONValidator();
+            boolean res = validator.validateAgainstSchema(json, schema);
+            Assertions.assertTrue(res);
+        });
+    }
+
+
 }

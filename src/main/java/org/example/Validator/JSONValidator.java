@@ -263,12 +263,18 @@ public class JSONValidator {
         VerifyBoolAndVerifierMethod verifyMinimum = new VerifyBoolAndVerifierMethod((node,assertion, validatorInstance) ->
         {
             Double minimum = ((JSONNumberTN) assertion).getValue();
+            System.out.println("minimum"  +minimum );
+            System.out.println(((JSONNumberTN) node).getValue());
+
             ValidationResultAndErrorMessage result = new ValidationResultAndErrorMessage();
             if( ((JSONNumberTN) node).getValue() >= minimum )
                 result.setValid(true);
             else {
                 result.setValid(false);
-                result.setMessage("integer value of "+node.getName()+" must be equal to or greater than "+minimum);
+                if(node.isRoot())
+                    result.setMessage("integer value must be equal to or greater than "+minimum);
+                else
+                    result.setMessage("integer value of "+node.getName()+" must be equal to or greater than "+minimum);
             }
             return result;
         });
@@ -578,6 +584,30 @@ public class JSONValidator {
         verifiers.get("boolean").put("$schema", verify$schema);
         verifiers.get("boolean").put("type", verifyType);
         verifiers.get("boolean").put("allOf", verifyAllOf);
+
+        VerifyBoolAndVerifierMethod<JSONTreeNode, JSONTreeNode> verifyItems = VerifyBoolAndVerifierMethod.withAssertionValueAsJSONTreeNode();
+        verifyItems.setVerifierMethod((node, assertion, validatorInstance) ->
+        {
+            LinkedHashSet<JSONTreeNode> itemsCopy = new LinkedHashSet<>(((JSONArrayTN) assertion).getItems());
+            int itemsCopyCount = itemsCopy.size();
+            LinkedHashSet<JSONTreeNode> nodeItems = ((JSONArrayTN) node).getItems();
+
+            int i=1;
+            for(JSONTreeNode nodeItem : nodeItems){
+                if(i>itemsCopyCount)
+                    break;
+                JSONTreeNode item = itemsCopy.removeFirst();
+                try {
+                    validatorInstance.validateAgainstSchema(nodeItem, item);
+                }catch(JSONValidationException|UnknownValidationKeywordException e){
+                    return new ValidationResultAndErrorMessage(false, e.getMessage());
+                }
+            }
+
+            return ValidationResultAndErrorMessage.newInstanceValid();
+        });
+
+        verifiers.get("array").put("items", verifyItems);
 
     }
 

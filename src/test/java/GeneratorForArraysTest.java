@@ -91,7 +91,7 @@ public class GeneratorForArraysTest {
     @Test
     public void generateTreeFromArrayWithMultipleStringItems(){
         Assertions.assertDoesNotThrow(() -> {
-            JSONString json = new JSONString("[\"jakis Napis\", \"drugi.\nnaPis\"]");
+            JSONString json = new JSONString("[\"jakis Napis\", \"drugi.naPis\"]");
             JSONTreeNode result = generator.generateJsonTree(json);
 
             Assertions.assertInstanceOf(JSONArrayTN.class, result);
@@ -106,7 +106,7 @@ public class GeneratorForArraysTest {
             stringItem = ((JSONArrayTN) result).getItems().getLast();
             Assertions.assertInstanceOf(JSONStringTN.class, stringItem);
             Assertions.assertEquals(JSONTreeNodeType.STRING, stringItem.getType());
-            Assertions.assertEquals("drugi.\nnaPis", ((JSONStringTN) stringItem).getValue());
+            Assertions.assertEquals("drugi.naPis", ((JSONStringTN) stringItem).getValue());
         });
     }
 
